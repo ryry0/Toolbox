@@ -38,22 +38,7 @@ int main()
     //a character pointer to the data for the second argument,
     //and the size of the data to send (in bytes) (1char = 1byte)
     tcpConn.sendData(tcpConn.getSocket(), (char *) &input, 1);
-    /*
-      char brake = 'B';
-      char throttle = 'T';
-      char gear = 'G';
-      int throttleVal, gearVal, brakeVal;
 
-
-      tcpConn.sendData(tcpConn.getSocket(), (char *) &brake, 1);
-      tcpConn.sendData(tcpConn.getSocket(), (char *) &brakeVal, 4);
-
-      tcpConn.sendData(tcpConn.getSocket(), (char *) &throttle, 1);
-      tcpConn.sendData(tcpConn.getSocket(), (char *) &throttleVal, 4);
-
-      tcpConn.sendData(tcpConn.getSocket(), (char *) &gear, 1);
-      tcpConn.sendData(tcpConn.getSocket(), (char *) &gearVal, 4);
-    */
   }
 
   return 0;

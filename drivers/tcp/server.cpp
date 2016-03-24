@@ -14,7 +14,7 @@ int main()
 
   while(1)
   {
-    tcpConn.receiveData(commSock, (char *) &data);
+    tcpConn.receiveData(commSock, (char *) &data, 1);
     cout << data << endl;
   }
 
