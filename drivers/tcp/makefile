@@ -1,8 +1,8 @@
 CC=g++
-CFLAGS=-c
+CFLAGS= -c
 LDFLAGS=
-EXECUTABLE=server
-EXECUTABLE2=client
+EXECUTABLE=servertcp
+EXECUTABLE2=clienttcp
 
 SOURCES=server.cpp tcpipnix.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
