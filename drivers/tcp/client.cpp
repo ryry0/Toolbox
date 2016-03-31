@@ -7,7 +7,7 @@
 using namespace std;
 using namespace term;
 
-#define PACKET_LENGTH 22
+#define PACKET_LENGTH 26
 
 typedef union copter_setpoints_t {
   struct {
@@ -16,6 +16,7 @@ typedef union copter_setpoints_t {
     float set_yaw;
     float P;
     float I;
+    float D;
     uint8_t hard_kill;
     uint8_t throttle;
   };
@@ -120,27 +121,27 @@ int main(int argc, char ** argv) {
 
         //P defines
       case ')':
-        copter_setpoints.P += 10.0f;
-        break;
-
-      case '0':
         copter_setpoints.P += 1.0f;
         break;
 
-      case 'p':
+      case '0':
         copter_setpoints.P += 0.1f;
         break;
 
+      case 'p':
+        copter_setpoints.P += 0.01f;
+        break;
+
       case ';':
-        copter_setpoints.P -= 0.1f;
+        copter_setpoints.P -= 0.01f;
         break;
 
       case '/':
-        copter_setpoints.P -= 1.0f;
+        copter_setpoints.P -= 0.1f;
         break;
 
       case '?':
-        copter_setpoints.P -= 10.0f;
+        copter_setpoints.P -= 1.0f;
         break;
 
         //I defines
@@ -166,6 +167,35 @@ int main(int argc, char ** argv) {
 
       case '<':
         //copter_setpoints.I -= 10.0f;
+        break;
+
+        //D defines
+      case '(':
+        copter_setpoints.D += 0.1f;
+        break;
+
+      case '9':
+        copter_setpoints.D += .01f;
+        break;
+
+      case 'o':
+        copter_setpoints.D += 0.001f;
+        break;
+
+      case 'l':
+        copter_setpoints.D -= 0.001f;
+        break;
+
+      case '.':
+        copter_setpoints.D -= 0.01f;
+        break;
+
+      case '>':
+        copter_setpoints.D -= 0.10f;
+        break;
+
+      case '+':
+        copter_setpoints.throttle = 100;
         break;
 
     }
