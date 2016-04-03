@@ -8,6 +8,8 @@ using namespace std;
 using namespace term;
 
 #define PACKET_LENGTH 26
+#define ROLL_OFFSET -1.05
+#define PITCH_OFFSET -1.7
 
 typedef union copter_setpoints_t {
   struct {
@@ -31,6 +33,8 @@ int main(int argc, char ** argv) {
   TCP tcpConn;
   float roll, pitch, yaw;
   copter_setpoints_t copter_setpoints = {0};
+  copter_setpoints.set_roll = ROLL_OFFSET;
+  copter_setpoints.set_pitch = PITCH_OFFSET;
 
   cout << sizeof (copter_setpoints_t) << endl;
   //Specify a port to connect to
@@ -65,22 +69,22 @@ int main(int argc, char ** argv) {
     char input = getch();
     switch(input) {
       case 'w':
-        copter_setpoints.set_roll += 1.0f;
+        copter_setpoints.set_roll += 0.10f;
         break;
       case 's':
-        copter_setpoints.set_roll -= 1.0f;
+        copter_setpoints.set_roll -= 0.1f;
         break;
       case 'a':
-        copter_setpoints.set_pitch += 1.0f;
+        copter_setpoints.set_pitch += 0.1f;
         break;
       case 'd':
-        copter_setpoints.set_pitch -= 1.0f;
+        copter_setpoints.set_pitch -= 0.1f;
         break;
       case 'q':
-        copter_setpoints.set_yaw += 1.0f;
+        copter_setpoints.set_yaw += 0.1f;
         break;
       case 'e':
-        copter_setpoints.set_yaw -= 1.0f;
+        copter_setpoints.set_yaw -= 0.1f;
         break;
 
       case 'r':
@@ -91,8 +95,21 @@ int main(int argc, char ** argv) {
         copter_setpoints.throttle = 0;
         break;
 
-      case 'u':
+      case 'U':
         copter_setpoints.throttle += 5;
+        if (copter_setpoints.throttle > 100)
+          copter_setpoints.throttle = 100;
+        break;
+
+      case 'J':
+        if (copter_setpoints.throttle == 0)
+          copter_setpoints.throttle = 0;
+        else
+          copter_setpoints.throttle -= 5;
+        break;
+
+      case 'u':
+        copter_setpoints.throttle += 1;
         if (copter_setpoints.throttle > 100)
           copter_setpoints.throttle = 100;
         break;
@@ -101,7 +118,7 @@ int main(int argc, char ** argv) {
         if (copter_setpoints.throttle == 0)
           copter_setpoints.throttle = 0;
         else
-          copter_setpoints.throttle -= 5;
+          copter_setpoints.throttle -= 1;
         break;
 
       case ' ':
@@ -208,9 +225,12 @@ int main(int argc, char ** argv) {
       cout << (int) copter_setpoints.data[i] << endl;
     }
     */
-    cout << "Throttle: " << (int) copter_setpoints.throttle << "\t" <<
+    cout << "Roll: " << copter_setpoints.set_roll << "\t" <<
+    "Pitch: " << copter_setpoints.set_pitch << "\t" <<
+    "Throttle: " << (int) copter_setpoints.throttle << "\t" <<
       "P: " << copter_setpoints.P << "\t" <<
-     "I: " << copter_setpoints.I << endl;
+     "I: " << copter_setpoints.I << "\t" <<
+     "D: " << copter_setpoints.D << endl;
 
     tcpConn.sendData(tcpConn.getSocket(), (char *)copter_setpoints.data,
         PACKET_LENGTH);
