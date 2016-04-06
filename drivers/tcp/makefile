@@ -1,32 +1,25 @@
 CC=g++
-CFLAGS= -c
-LDFLAGS=
-EXECUTABLE=servertcp
-EXECUTABLE2=clienttcp
+CFLAGS=-c -pthread --std=c++11
+LDFLAGS=-lpthread
+EXECUTABLE=client.x
 
-SOURCES=server.cpp tcpipnix.cpp
+SOURCES=tcpipnix.cpp client.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
-SOURCE2=client.cpp tcpipnix.cpp
-OBJECT2=$(SOURCE2:.cpp=.o)
-
 .PHONY: clean cleanall
-all: $(EXECUTABLE) $(EXECUTABLE2) 
-
-$(EXECUTABLE2): $(OBJECT2)
-	$(CC) $(LDFLAGS) $(OBJECT2) -o $@
+all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
 
-%.o: %.cpp %.h
+%.o: %.cpp $(wildcard *.h)
 	$(CC) $(CFLAGS) $< -o $@
 
-cleanall: clean 
-	rm -f $(EXECUTABLE) $(EXECUTABLE2)
+cleanall: clean
+	rm -f $(EXECUTABLE)
 
 clean:
 	rm -f *.o *.gch
 
-run: 
+run:
 	./$(EXECUTABLE)
