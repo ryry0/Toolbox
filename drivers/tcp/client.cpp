@@ -3,14 +3,16 @@
 #include "tcpipnix.h"
 #include "getch.h"
 #include <cstdint>
+#include <pthread.h>
 
 using namespace std;
 using namespace term;
 
 #define PACKET_LENGTH 26
-#define ROLL_OFFSET -1.05
-#define PITCH_OFFSET -1.7
 
+/*------------------------------*/
+/*      STRUCT DEFINITIONS      */
+/*------------------------------*/
 typedef union copter_setpoints_t {
   struct {
     float set_roll;
@@ -25,36 +27,66 @@ typedef union copter_setpoints_t {
   uint8_t data[PACKET_LENGTH];
 } copter_setpoints_t;
 
-int main(int argc, char ** argv) {
-  //This client server implements a simple "chat" program.
-  //It sends one letter at a time.
-  //To talk to a server you need to do the following:
-  //Create the TCP Object
-  TCP tcpConn;
-  float roll, pitch, yaw;
-  copter_setpoints_t copter_setpoints = {0};
-  copter_setpoints.set_roll = ROLL_OFFSET;
-  copter_setpoints.set_pitch = PITCH_OFFSET;
 
-  cout << sizeof (copter_setpoints_t) << endl;
+/*------------------------------*/
+/*      FUNCTION PROTOTYPES     */
+/*------------------------------*/
+void interpretKeys(const char, copter_setpoints_t &);
+void keyThread(void *args);
+void heartbeatThread(void *args);
+
+/*------------------------------*/
+/*       GLOBAL VARIABLES       */
+/*------------------------------*/
+copter_setpoints_t copter_setpoints = {0};
+
+int main(int argc, char ** argv) {
+  TCP tcpConn;
+
+  pthread_t key_thread;
+  pthread_t heartbeat_thread;
+
   //Specify a port to connect to
   int port = 5555;
-
   string addr = "127.0.0.1";
-
 
   //Specify an IP address such as the above
   if (argc > 1) {
-    addr = string(argv[1]);
-    cout << addr << endl;
+    switch (argc) {
+      case 7:
+        copter_setpoints.set_pitch = atof(argv[6]);
+      case 6:
+        copter_setpoints.set_roll = atof(argv[5]);
+      case 5:
+        copter_setpoints.D = atof(argv[4]);
+      case 4:
+        copter_setpoints.I = atof(argv[3]);
+      case 3:
+        copter_setpoints.P = atof(argv[2]);
+      case 2:
+        addr = string(argv[1]);
+        break;
+      default:
+        break;
+    }
   }
   else {
-    cout << "ip address:";
-    cin >> addr;
+    cout <<
+      "Usage: " <<
+      argv[0] <<
+      " <ip_address> [initial_p] [initial_i] [initial_d]" <<
+      "[initial_roll] [initial_pitch]" << endl;
+    return 1;
   }
 
-  //run the connectToHost function, and pass in the port, and the address
-  //the function returns true when you connect, and false if you don't
+  cout << "Client initialized to: " <<
+    "IP address:\t" << addr << endl <<
+    "Copter P:\t"   << copter_setpoints.P << endl <<
+    "Copter I:\t"   << copter_setpoints.I << endl <<
+    "Copter D:\t"   << copter_setpoints.D << endl <<
+    "Copter roll:\t"   << copter_setpoints.set_roll << endl <<
+    "Copter pitch:\t"  << copter_setpoints.set_pitch << endl;
+
   cout << "connecting" << endl;
   if (!tcpConn.connectToHost(port, addr.c_str()))
     return 1;
@@ -63,10 +95,33 @@ int main(int argc, char ** argv) {
 
   cout << "connected" << endl;
 
+  //main loop
   while (1)
   {
 
     char input = getch();
+    interpretKeys(input, copter_setpoints);
+
+    cout <<
+      "Roll: "      << copter_setpoints.set_roll << "\t" <<
+      "Pitch: "     << copter_setpoints.set_pitch << "\t" <<
+      "Throttle: "  << (int) copter_setpoints.throttle << "\t" <<
+      "P: "         << copter_setpoints.P << "\t" <<
+      "I: "         << copter_setpoints.I << "\t" <<
+      "D: "         << copter_setpoints.D << endl;
+
+    tcpConn.sendData(tcpConn.getSocket(), (char *)copter_setpoints.data,
+        PACKET_LENGTH);
+
+  } //end while
+
+  return 0;
+}
+
+/*------------------------------*/
+/*        INTERPRETKEYS         */
+/*------------------------------*/
+void interpretKeys(const char input, copter_setpoints_t &copter_setpoints) {
     switch(input) {
       case 'w':
         copter_setpoints.set_roll += 0.10f;
@@ -214,28 +269,5 @@ int main(int argc, char ** argv) {
       case '+':
         copter_setpoints.throttle = 100;
         break;
-
-    }
-
-    //run the Senddata function, using tcpConn.getSocket() as the first argument
-    //a character pointer to the data for the second argument,
-    //and the size of the data to send (in bytes) (1char = 1byte)
-    /*
-    for (size_t i = 0; i < PACKET_LENGTH; ++i) {
-      cout << (int) copter_setpoints.data[i] << endl;
-    }
-    */
-    cout << "Roll: " << copter_setpoints.set_roll << "\t" <<
-    "Pitch: " << copter_setpoints.set_pitch << "\t" <<
-    "Throttle: " << (int) copter_setpoints.throttle << "\t" <<
-      "P: " << copter_setpoints.P << "\t" <<
-     "I: " << copter_setpoints.I << "\t" <<
-     "D: " << copter_setpoints.D << endl;
-
-    tcpConn.sendData(tcpConn.getSocket(), (char *)copter_setpoints.data,
-        PACKET_LENGTH);
-
-  } //end while
-
-  return 0;
-}
+    } //end switch
+} //end handleKeys
