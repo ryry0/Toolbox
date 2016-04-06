@@ -4,11 +4,13 @@
 #include "getch.h"
 #include <cstdint>
 #include <pthread.h>
+#include <unistd.h> //for usleep
 
 using namespace std;
 using namespace term;
 
 #define PACKET_LENGTH 26
+#define USLEEP_INTERVAL 500000 //sleep for .5 secs
 
 /*------------------------------*/
 /*      STRUCT DEFINITIONS      */
@@ -31,22 +33,23 @@ typedef union copter_setpoints_t {
 /*------------------------------*/
 /*      FUNCTION PROTOTYPES     */
 /*------------------------------*/
-void interpretKeys(const char, copter_setpoints_t &);
-void keyThread(void *args);
-void heartbeatThread(void *args);
+void interpretKeys(const char);
+void *keyThread(void *args);
+void *heartbeatThread(void *args);
 
 /*------------------------------*/
 /*       GLOBAL VARIABLES       */
 /*------------------------------*/
 copter_setpoints_t copter_setpoints = {0};
+pthread_mutex_t copter_mutex;
 
 int main(int argc, char ** argv) {
   TCP tcpConn;
 
   pthread_t key_thread;
   pthread_t heartbeat_thread;
+  pthread_attr_t attr;
 
-  //Specify a port to connect to
   int port = 5555;
   string addr = "127.0.0.1";
 
@@ -87,20 +90,61 @@ int main(int argc, char ** argv) {
     "Copter roll:\t"   << copter_setpoints.set_roll << endl <<
     "Copter pitch:\t"  << copter_setpoints.set_pitch << endl;
 
+  //Run initializations
+  initTermios(0); //init getch()
+  pthread_mutex_init(&copter_mutex, NULL); //init mutex
+
+  //connect to quadcopter
   cout << "connecting" << endl;
   if (!tcpConn.connectToHost(port, addr.c_str()))
     return 1;
-
-  initTermios(0);
-
   cout << "connected" << endl;
 
-  //main loop
-  while (1)
-  {
+  if (pthread_create(&key_thread, NULL, keyThread, NULL)  != 0) {
+    cout << "Could not spawn key_thread" << endl;
+    return 1;
+  }
 
+  if (pthread_create(&heartbeat_thread, NULL, heartbeatThread, &tcpConn) != 0) {
+    cout << "Could not spawn heartbeat_thread" << endl;
+    return 1;
+  }
+
+  //wait until the threads join
+  pthread_join(key_thread, NULL);
+  pthread_join(heartbeat_thread, NULL);
+
+  return 0;
+}
+
+/*------------------------------*/
+/*        HEARTBEATTHREAD       */
+/*------------------------------*/
+
+void *heartbeatThread(void *args) {
+  TCP *connection = (TCP*) args;
+
+  for (;;) {
+    pthread_mutex_lock(&copter_mutex);
+    connection->sendData(connection->getSocket(), (char *)copter_setpoints.data,
+        PACKET_LENGTH);
+    pthread_mutex_unlock(&copter_mutex);
+
+    usleep(USLEEP_INTERVAL);
+  }
+}
+
+/*------------------------------*/
+/*          KEYTHREAD           */
+/*------------------------------*/
+
+void *keyThread(void *args) {
+  for (;;) {
     char input = getch();
-    interpretKeys(input, copter_setpoints);
+
+    pthread_mutex_lock(&copter_mutex);
+    interpretKeys(input);
+    pthread_mutex_unlock(&copter_mutex);
 
     cout <<
       "Roll: "      << copter_setpoints.set_roll << "\t" <<
@@ -110,18 +154,12 @@ int main(int argc, char ** argv) {
       "I: "         << copter_setpoints.I << "\t" <<
       "D: "         << copter_setpoints.D << endl;
 
-    tcpConn.sendData(tcpConn.getSocket(), (char *)copter_setpoints.data,
-        PACKET_LENGTH);
-
-  } //end while
-
-  return 0;
+  } //end for
 }
-
 /*------------------------------*/
 /*        INTERPRETKEYS         */
 /*------------------------------*/
-void interpretKeys(const char input, copter_setpoints_t &copter_setpoints) {
+void interpretKeys(const char input) {
     switch(input) {
       case 'w':
         copter_setpoints.set_roll += 0.10f;
