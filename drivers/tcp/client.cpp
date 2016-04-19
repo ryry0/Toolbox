@@ -35,6 +35,7 @@ typedef union copter_setpoints_t {
 /*------------------------------*/
 void interpretKeys(const char);
 void *keyThread(void *args);
+void *controllerThread(void *args);
 void *heartbeatThread(void *args);
 
 /*------------------------------*/
@@ -78,7 +79,7 @@ int main(int argc, char ** argv) {
       "Usage: " <<
       argv[0] <<
       " <ip_address> [initial_p] [initial_i] [initial_d]" <<
-      "[initial_roll] [initial_pitch]" << endl;
+      " [initial_roll] [initial_pitch]" << endl;
     return 1;
   }
 
@@ -100,7 +101,7 @@ int main(int argc, char ** argv) {
     return 1;
   cout << "connected" << endl;
 
-  if (pthread_create(&key_thread, NULL, keyThread, NULL)  != 0) {
+  if (pthread_create(&key_thread, NULL, keyThread, &tcpConn)  != 0) {
     cout << "Could not spawn key_thread" << endl;
     return 1;
   }
@@ -139,11 +140,14 @@ void *heartbeatThread(void *args) {
 /*------------------------------*/
 
 void *keyThread(void *args) {
+  TCP *connection = (TCP*) args;
   for (;;) {
     char input = getch();
 
     pthread_mutex_lock(&copter_mutex);
     interpretKeys(input);
+    connection->sendData(connection->getSocket(), (char *)copter_setpoints.data,
+        PACKET_LENGTH);
     pthread_mutex_unlock(&copter_mutex);
 
     cout <<
