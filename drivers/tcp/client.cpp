@@ -2,6 +2,7 @@
 #include <string>
 #include "tcpipnix.h"
 #include "getch.h"
+#include "serialnix.h"
 #include <cstdint>
 #include <pthread.h>
 #include <unistd.h> //for usleep
@@ -11,6 +12,7 @@ using namespace term;
 
 #define PACKET_LENGTH 26
 #define USLEEP_INTERVAL 500000 //sleep for .5 secs
+#define CONT_PACKET_LENGTH 13
 
 /*------------------------------*/
 /*      STRUCT DEFINITIONS      */
@@ -29,6 +31,20 @@ typedef union copter_setpoints_t {
   uint8_t data[PACKET_LENGTH];
 } copter_setpoints_t;
 
+typedef union controller_packet_t {
+  struct {
+    float roll;
+    float pitch;
+    float yaw;
+    uint8_t throttle;
+  };
+  uint8_t data[CONT_PACKET_LENGTH];
+} controller_packet_t;
+
+typedef struct cont_thread_args_t {
+  int serial_fd;
+  TCP *tcpConn_p;
+} cont_thread_args_t;
 
 /*------------------------------*/
 /*      FUNCTION PROTOTYPES     */
@@ -49,24 +65,28 @@ int main(int argc, char ** argv) {
 
   pthread_t key_thread;
   pthread_t heartbeat_thread;
+  pthread_t controller_thread;
   pthread_attr_t attr;
 
   int port = 5555;
+  int serial_fd = 0;
   string addr = "127.0.0.1";
+  string serial_addr = "127.0.0.1";
 
-  //Specify an IP address such as the above
   if (argc > 1) {
     switch (argc) {
+      case 8:
+        copter_setpoints.set_pitch = atof(argv[7]);
       case 7:
-        copter_setpoints.set_pitch = atof(argv[6]);
+        copter_setpoints.set_roll = atof(argv[6]);
       case 6:
-        copter_setpoints.set_roll = atof(argv[5]);
+        copter_setpoints.D = atof(argv[5]);
       case 5:
-        copter_setpoints.D = atof(argv[4]);
+        copter_setpoints.I = atof(argv[4]);
       case 4:
-        copter_setpoints.I = atof(argv[3]);
+        copter_setpoints.P = atof(argv[3]);
       case 3:
-        copter_setpoints.P = atof(argv[2]);
+        serial_addr = string(argv[2]);
       case 2:
         addr = string(argv[1]);
         break;
@@ -78,7 +98,7 @@ int main(int argc, char ** argv) {
     cout <<
       "Usage: " <<
       argv[0] <<
-      " <ip_address> [initial_p] [initial_i] [initial_d]" <<
+      " <ip_address> <serial_port> [initial_p] [initial_i] [initial_d]" <<
       " [initial_roll] [initial_pitch]" << endl;
     return 1;
   }
@@ -93,7 +113,15 @@ int main(int argc, char ** argv) {
 
   //Run initializations
   initTermios(0); //init getch()
-  pthread_mutex_init(&copter_mutex, NULL); //init mutex
+  serial_fd = open_port(serial_addr.c_str());
+  if (serial_fd == -1) {
+    cout << "Could not connect to serial port at " << serial_addr << endl;
+    return 1;
+  }
+  if (init_serial_port(serial_fd) == -1) {
+    cout << "Could not intialize serial port" << endl;
+    return 1;
+  }
 
   //connect to quadcopter
   cout << "connecting" << endl;
@@ -101,8 +129,19 @@ int main(int argc, char ** argv) {
     return 1;
   cout << "connected" << endl;
 
+  pthread_mutex_init(&copter_mutex, NULL); //init mutex
+
   if (pthread_create(&key_thread, NULL, keyThread, &tcpConn)  != 0) {
     cout << "Could not spawn key_thread" << endl;
+    return 1;
+  }
+
+  cont_thread_args_t cont_args;
+  cont_args.serial_fd = serial_fd;
+  cont_args.tcpConn_p = &tcpConn;
+
+  if (pthread_create(&controller_thread, NULL, controllerThread, &cont_args)  != 0) {
+    cout << "Could not spawn controllerThread" << endl;
     return 1;
   }
 
@@ -115,6 +154,7 @@ int main(int argc, char ** argv) {
   pthread_join(key_thread, NULL);
   pthread_join(heartbeat_thread, NULL);
 
+  close(serial_fd);
   return 0;
 }
 
@@ -134,6 +174,66 @@ void *heartbeatThread(void *args) {
     usleep(USLEEP_INTERVAL);
   }
 }
+
+
+/*------------------------------*/
+/*       CONTROLLERTHREAD       */
+/*------------------------------*/
+
+void *controllerThread(void *args) {
+  cont_thread_args_t *cont_args = (cont_thread_args_t *) args;
+
+  int serial_fd = cont_args->serial_fd;
+  TCP *connection = cont_args->tcpConn;
+
+  controller_packet_t controller_packet;
+
+  float prev_pitch, prev_roll, prev_yaw;
+  uint8_t prev_throttle;
+
+  for (;;) {
+    //fill until newline
+    size_t bytes_read = 0;
+    size_t total_bytes_read = 0;
+    while (total_bytes_read < CONT_PACKET_LENGTH) {
+      bytes_read =
+        read(serial_fd, &controller_packet.data, CONT_PACKET_LENGTH);
+
+      if (bytes_read == -1)
+        return;
+
+      total_bytes_read += bytes_read;
+    }
+
+    cout << "Pitch" << controller_packet.pitch
+      << " Roll" << controller_packet.roll
+      << " Yaw" << controller_packet.yaw
+      << " Throttle" << controller_packet.throttle;
+
+    if ((prev_pitch != controller_packet.pitch) ||
+        (prev_throttle != controller_packet.throttle) ||
+        (prev_roll != controller_packet.roll) ||
+        (prev_yaw != controller_packet.yaw)) {
+
+      pthread_mutex_lock(&copter_mutex);
+
+      copter_setpoints.set_pitch = controller_packet.pitch;
+      copter_setpoints.set_yaw = controller_packet.yaw;
+      copter_setpoints.set_roll = controller_packet.roll;
+      copter_setpoints.set_throttle = controller_packet.throttle;
+
+      connection->sendData(connection->getSocket(), (char *)copter_setpoints.data,
+          PACKET_LENGTH);
+      pthread_mutex_unlock(&copter_mutex);
+    }
+
+    prev_pitch = controller_packet.pitch;
+    prev_roll = controller_packet.roll;
+    prev_yaw = controller_packet.yaw;
+    prev_throttle = controller_packet.throttle;
+
+  } //end for
+} //end controllerThread
 
 /*------------------------------*/
 /*          KEYTHREAD           */
@@ -312,4 +412,4 @@ void interpretKeys(const char input) {
         copter_setpoints.throttle = 100;
         break;
     } //end switch
-} //end handleKeys
+} //end interpretKeys
