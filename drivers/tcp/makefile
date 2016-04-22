@@ -1,9 +1,9 @@
 CC=g++
-CFLAGS=-c -pthread --std=c++11
+CFLAGS=-c -pthread --std=c++11 -I.
 LDFLAGS=-lpthread
 EXECUTABLE=client.x
 
-SOURCES=tcpipnix.cpp client.cpp
+SOURCES=tcpipnix.cpp serialnix.cpp client.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 
 .PHONY: clean cleanall

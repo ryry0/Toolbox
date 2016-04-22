@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include "tcpipnix.h"
 #include "getch.h"
@@ -13,6 +14,7 @@ using namespace term;
 #define PACKET_LENGTH 26
 #define USLEEP_INTERVAL 500000 //sleep for .5 secs
 #define CONT_PACKET_LENGTH 13
+//#define ENABLE_TCP
 
 /*------------------------------*/
 /*      STRUCT DEFINITIONS      */
@@ -105,6 +107,7 @@ int main(int argc, char ** argv) {
 
   cout << "Client initialized to: " <<
     "IP address:\t" << addr << endl <<
+    "Serial address:\t" << serial_addr << endl <<
     "Copter P:\t"   << copter_setpoints.P << endl <<
     "Copter I:\t"   << copter_setpoints.I << endl <<
     "Copter D:\t"   << copter_setpoints.D << endl <<
@@ -123,11 +126,13 @@ int main(int argc, char ** argv) {
     return 1;
   }
 
+#ifdef ENABLE_TCP
   //connect to quadcopter
   cout << "connecting" << endl;
   if (!tcpConn.connectToHost(port, addr.c_str()))
     return 1;
   cout << "connected" << endl;
+#endif
 
   pthread_mutex_init(&copter_mutex, NULL); //init mutex
 
@@ -167,8 +172,10 @@ void *heartbeatThread(void *args) {
 
   for (;;) {
     pthread_mutex_lock(&copter_mutex);
+#ifdef ENABLE_TCP
     connection->sendData(connection->getSocket(), (char *)copter_setpoints.data,
         PACKET_LENGTH);
+#endif
     pthread_mutex_unlock(&copter_mutex);
 
     usleep(USLEEP_INTERVAL);
@@ -184,7 +191,7 @@ void *controllerThread(void *args) {
   cont_thread_args_t *cont_args = (cont_thread_args_t *) args;
 
   int serial_fd = cont_args->serial_fd;
-  TCP *connection = cont_args->tcpConn;
+  TCP *connection = cont_args->tcpConn_p;
 
   controller_packet_t controller_packet;
 
@@ -193,22 +200,19 @@ void *controllerThread(void *args) {
 
   for (;;) {
     //fill until newline
-    size_t bytes_read = 0;
     size_t total_bytes_read = 0;
     while (total_bytes_read < CONT_PACKET_LENGTH) {
-      bytes_read =
-        read(serial_fd, &controller_packet.data, CONT_PACKET_LENGTH);
+      size_t bytes_read =
+        read(serial_fd, &controller_packet.data[total_bytes_read], 1);
 
       if (bytes_read == -1)
-        return;
+        return NULL;
 
-      total_bytes_read += bytes_read;
+      //cout << total_bytes_read << endl;
+      //to fix this need COBS
+      if (bytes_read != 0)
+        total_bytes_read++;
     }
-
-    cout << "Pitch" << controller_packet.pitch
-      << " Roll" << controller_packet.roll
-      << " Yaw" << controller_packet.yaw
-      << " Throttle" << controller_packet.throttle;
 
     if ((prev_pitch != controller_packet.pitch) ||
         (prev_throttle != controller_packet.throttle) ||
@@ -220,12 +224,26 @@ void *controllerThread(void *args) {
       copter_setpoints.set_pitch = controller_packet.pitch;
       copter_setpoints.set_yaw = controller_packet.yaw;
       copter_setpoints.set_roll = controller_packet.roll;
-      copter_setpoints.set_throttle = controller_packet.throttle;
+      copter_setpoints.throttle = controller_packet.throttle;
 
+#ifdef ENABLE_TCP
       connection->sendData(connection->getSocket(), (char *)copter_setpoints.data,
           PACKET_LENGTH);
+#endif
       pthread_mutex_unlock(&copter_mutex);
+
+      /*
+      cout << "Pitch " << controller_packet.pitch << "\t"
+        << " Roll " << controller_packet.roll << "\t"
+        << " Yaw " << controller_packet.yaw << "\t"
+        << " Throttle " << (int) controller_packet.throttle << endl;
+        */
     }
+
+    for (int i = 0; i < CONT_PACKET_LENGTH; ++i) {
+      cout << hex << (int) controller_packet.data[i] << "\t";
+    }
+    cout << endl;
 
     prev_pitch = controller_packet.pitch;
     prev_roll = controller_packet.roll;
@@ -246,8 +264,10 @@ void *keyThread(void *args) {
 
     pthread_mutex_lock(&copter_mutex);
     interpretKeys(input);
+#ifdef ENABLE_TCP
     connection->sendData(connection->getSocket(), (char *)copter_setpoints.data,
         PACKET_LENGTH);
+#endif
     pthread_mutex_unlock(&copter_mutex);
 
     cout <<
