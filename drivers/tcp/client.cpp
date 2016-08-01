@@ -9,8 +9,10 @@
 using namespace std;
 using namespace term;
 
-#define PACKET_LENGTH 26
+#define PACKET_LENGTH 27
 #define USLEEP_INTERVAL 500000 //sleep for .5 secs
+#define MAX_THROTTLE 1000
+#define MIN_THROTTLE 0
 
 /*------------------------------*/
 /*      STRUCT DEFINITIONS      */
@@ -23,8 +25,8 @@ typedef union copter_setpoints_t {
     float P;
     float I;
     float D;
+    uint16_t throttle;
     uint8_t hard_kill;
-    uint8_t throttle;
   };
   uint8_t data[PACKET_LENGTH];
 } copter_setpoints_t;
@@ -83,7 +85,7 @@ int main(int argc, char ** argv) {
     return 1;
   }
 
-  cout << "Client initialized to: " <<
+  cout << "Client initialized to: " << endl <<
     "IP address:\t" << addr << endl <<
     "Copter P:\t"   << copter_setpoints.P << endl <<
     "Copter I:\t"   << copter_setpoints.I << endl <<
@@ -194,26 +196,26 @@ void interpretKeys(const char input) {
 
       case 'U':
         copter_setpoints.throttle += 5;
-        if (copter_setpoints.throttle > 100)
-          copter_setpoints.throttle = 100;
+        if (copter_setpoints.throttle > MAX_THROTTLE)
+          copter_setpoints.throttle = MAX_THROTTLE;
         break;
 
       case 'J':
-        if (copter_setpoints.throttle == 0)
-          copter_setpoints.throttle = 0;
+        if (copter_setpoints.throttle <= MIN_THROTTLE)
+          copter_setpoints.throttle = MIN_THROTTLE;
         else
           copter_setpoints.throttle -= 5;
         break;
 
       case 'u':
         copter_setpoints.throttle += 1;
-        if (copter_setpoints.throttle > 100)
-          copter_setpoints.throttle = 100;
+        if (copter_setpoints.throttle > MAX_THROTTLE)
+          copter_setpoints.throttle = MAX_THROTTLE;
         break;
 
       case 'j':
-        if (copter_setpoints.throttle == 0)
-          copter_setpoints.throttle = 0;
+        if (copter_setpoints.throttle <= MIN_THROTTLE)
+          copter_setpoints.throttle = MIN_THROTTLE;
         else
           copter_setpoints.throttle -= 1;
         break;
@@ -222,7 +224,7 @@ void interpretKeys(const char input) {
         copter_setpoints.set_yaw = 0;
         copter_setpoints.set_roll = 0;
         copter_setpoints.set_pitch = 0;
-        copter_setpoints.throttle = 0;
+        copter_setpoints.throttle = MIN_THROTTLE;
         copter_setpoints.hard_kill = 1;
         break;
 
@@ -230,7 +232,7 @@ void interpretKeys(const char input) {
         copter_setpoints.set_yaw = 0;
         copter_setpoints.set_roll = 0;
         copter_setpoints.set_pitch = 0;
-        copter_setpoints.throttle = 0;
+        copter_setpoints.throttle = MIN_THROTTLE;
         break;
 
         //P defines
@@ -239,19 +241,19 @@ void interpretKeys(const char input) {
         break;
 
       case '0':
-        copter_setpoints.P += 0.1f;
-        break;
-
-      case 'p':
         copter_setpoints.P += 0.01f;
         break;
 
+      case 'p':
+        copter_setpoints.P += 0.001f;
+        break;
+
       case ';':
-        copter_setpoints.P -= 0.01f;
+        copter_setpoints.P -= 0.001f;
         break;
 
       case '/':
-        copter_setpoints.P -= 0.1f;
+        copter_setpoints.P -= 0.01f;
         break;
 
       case '?':
@@ -309,7 +311,7 @@ void interpretKeys(const char input) {
         break;
 
       case '+':
-        copter_setpoints.throttle = 100;
+        //copter_setpoints.throttle = 100;
         break;
     } //end switch
 } //end handleKeys
