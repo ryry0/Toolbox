@@ -167,17 +167,17 @@ void *keyThread(void *args) {
 /*------------------------------*/
 void interpretKeys(const char input) {
     switch(input) {
-      case 'w':
-        copter_setpoints.set_roll += 0.10f;
-        break;
-      case 's':
-        copter_setpoints.set_roll -= 0.1f;
+      case 'd':
+        copter_setpoints.set_roll += 1.0f;
         break;
       case 'a':
-        copter_setpoints.set_pitch += 0.1f;
+        copter_setpoints.set_roll -= 1.0f;
         break;
-      case 'd':
-        copter_setpoints.set_pitch -= 0.1f;
+      case 'w':
+        copter_setpoints.set_pitch += 1.0f;
+        break;
+      case 's':
+        copter_setpoints.set_pitch -= 1.0f;
         break;
       case 'q':
         copter_setpoints.set_yaw += 0.1f;
@@ -195,7 +195,7 @@ void interpretKeys(const char input) {
         break;
 
       case 'U':
-        copter_setpoints.throttle += 5;
+        copter_setpoints.throttle += 50;
         if (copter_setpoints.throttle > MAX_THROTTLE)
           copter_setpoints.throttle = MAX_THROTTLE;
         break;
@@ -204,11 +204,11 @@ void interpretKeys(const char input) {
         if (copter_setpoints.throttle <= MIN_THROTTLE)
           copter_setpoints.throttle = MIN_THROTTLE;
         else
-          copter_setpoints.throttle -= 5;
+          copter_setpoints.throttle -= 50;
         break;
 
       case 'u':
-        copter_setpoints.throttle += 1;
+        copter_setpoints.throttle += 10;
         if (copter_setpoints.throttle > MAX_THROTTLE)
           copter_setpoints.throttle = MAX_THROTTLE;
         break;
@@ -217,7 +217,7 @@ void interpretKeys(const char input) {
         if (copter_setpoints.throttle <= MIN_THROTTLE)
           copter_setpoints.throttle = MIN_THROTTLE;
         else
-          copter_setpoints.throttle -= 1;
+          copter_setpoints.throttle -= 10;
         break;
 
       case ' ':
@@ -266,19 +266,19 @@ void interpretKeys(const char input) {
         break;
 
       case '8':
-        copter_setpoints.I += .01f;
+        copter_setpoints.I += .001f;
         break;
 
       case 'i':
-        copter_setpoints.I += 0.001f;
+        copter_setpoints.I += 0.0001f;
         break;
 
       case 'k':
-        copter_setpoints.I -= 0.001f;
+        copter_setpoints.I -= 0.0001f;
         break;
 
       case ',':
-        copter_setpoints.I -= 0.01f;
+        copter_setpoints.I -= 0.001f;
         break;
 
       case '<':
