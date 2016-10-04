@@ -45,22 +45,28 @@
 #
 # $Id$
 
-PORT = /dev/ttyACM0
-TARGET = main
-ARDUINO = ../../inc
+PORT = /dev/ttyUSB0
+TARGET = imu_test
+ARDUINO = ../arduino_core
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_analog.c \
   $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_shift.c \
-  $(ARDUINO)/wiring_pulse.c $(ARDUINO)/WInterrupts.c
-CXXSRC = $(TARGET).cpp $(ARDUINO)/HardwareSerial.cpp \
+  $(ARDUINO)/wiring_pulse.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/hooks.c
+CXXSRC = $(TARGET).cpp $(ARDUINO)/main.cpp \
+	 $(ARDUINO)/HardwareSerial.cpp \
+	 $(ARDUINO)/HardwareSerial0.cpp \
+	 $(ARDUINO)/HardwareSerial1.cpp \
+	 $(ARDUINO)/HardwareSerial2.cpp \
+	 $(ARDUINO)/HardwareSerial3.cpp \
 	 $(ARDUINO)/Tone.cpp $(ARDUINO)/WString.cpp $(ARDUINO)/Print.cpp \
-	 $(ARDUINO)/WMath.cpp $(ARDUINO)/new.cpp ./Encoder.cpp
+	 $(ARDUINO)/WMath.cpp $(ARDUINO)/new.cpp $(ARDUINO)/abi.cpp
+ASRC= $(ARDUINO)/wiring_pulse_asm.S
 MCU = atmega2560
 F_CPU = 16000000
 FORMAT = ihex
 UPLOAD_RATE = 115200
 
 # Name of this Makefile (used for "make depend").
-MAKEFILE = Makefile
+MAKEFILE = makefile
 
 # Debugging format.
 # Native formats for AVR-GCC's -g are stabs [default], or dwarf-2.
@@ -85,11 +91,12 @@ CXXINCS = -I$(ARDUINO)
 CSTANDARD = -std=gnu99
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes -fdiagnostics-color=auto
+CPPWARN = -Wall -fdiagnostics-color=auto
 CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CSTANDARD) $(CEXTRA)
-CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT) $(CWARN)
+CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT) $(CPPWARN)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
 LDFLAGS = 
 
