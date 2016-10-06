@@ -50,15 +50,18 @@ TARGET = imu_test
 ARDUINO = ../arduino_core
 SRC = $(ARDUINO)/wiring.c $(ARDUINO)/wiring_analog.c \
   $(ARDUINO)/wiring_digital.c $(ARDUINO)/wiring_shift.c \
-  $(ARDUINO)/wiring_pulse.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/hooks.c
-CXXSRC = $(TARGET).cpp $(ARDUINO)/main.cpp \
+  $(ARDUINO)/wiring_pulse.c $(ARDUINO)/WInterrupts.c $(ARDUINO)/hooks.c \
+	$(wildcard *.c)
+
+CXXSRC = $(ARDUINO)/main.cpp \
 	 $(ARDUINO)/HardwareSerial.cpp \
 	 $(ARDUINO)/HardwareSerial0.cpp \
 	 $(ARDUINO)/HardwareSerial1.cpp \
 	 $(ARDUINO)/HardwareSerial2.cpp \
 	 $(ARDUINO)/HardwareSerial3.cpp \
 	 $(ARDUINO)/Tone.cpp $(ARDUINO)/WString.cpp $(ARDUINO)/Print.cpp \
-	 $(ARDUINO)/WMath.cpp $(ARDUINO)/new.cpp $(ARDUINO)/abi.cpp
+	 $(ARDUINO)/WMath.cpp $(ARDUINO)/new.cpp $(ARDUINO)/abi.cpp $(wildcard *.cpp)
+
 ASRC= $(ARDUINO)/wiring_pulse_asm.S
 MCU = atmega2560
 F_CPU = 16000000
