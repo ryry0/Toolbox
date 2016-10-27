@@ -3,10 +3,10 @@
 
 struct ring_buffer {
   char * buffer;
-  size_t buffer_size;
+  size_t buffer_size; //full allocated size
   size_t head;
   size_t tail;
-  size_t length;
+  size_t length; //number of items stored
 };
 
 
