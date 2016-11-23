@@ -3,13 +3,14 @@ OBJ_EXT=o
 HEAD_EXT=h
 OBJ_HEAD_EXT=gch
 CC=gcc
-CFLAGS=-c -I. -std=c11 -pthread
-LDFLAGS=-lm -lpthread
-DFLAGS=-DDEBUG -ggdb -g3 -Wall
+CFLAGS=-c -I. -std=c11
+LDFLAGS=
+DFLAGS=-DDEBUG -ggdb3 -Wall -fdiagnostics-color=auto
 RFLAGS=-O2
+PFLAGS=-pg
 DEFAULT_DEBUG=y
 
-EXECUTABLE=nn.x
+EXECUTABLE=out.x
 
 SOURCES=$(wildcard *.$(SOURCE_EXT))
 OBJECTS=$(SOURCES:.$(SOURCE_EXT)=.$(OBJ_EXT))
@@ -26,6 +27,9 @@ all: $(ALL_TARGET)
 
 debug: CFLAGS += $(DFLAGS)
 debug: $(SOURCES) $(EXECUTABLE)
+
+profile: CFLAGS +=$(PFLAGS)
+profile: release
 
 release: CFLAGS += $(RFLAGS)
 release: $(SOURCES) $(EXECUTABLE)
@@ -55,8 +59,12 @@ tags:
 run: all
 	./$(EXECUTABLE)
 
-test: all
-	gdb -tui -q $(EXECUTABLE) -tty=/dev/pts/2
+gdb: debug
+	gdb -q $(EXECUTABLE)
 
-grind: all
-	valgrind --leak-check=yes ./$(EXECUTABLE)
+grind: debug
+	valgrind ./$(EXECUTABLE)
+
+leak-check: debug
+	valgrind --leak-check=full ./$(EXECUTABLE)
+
