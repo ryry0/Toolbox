@@ -26,7 +26,7 @@ SOURCES=$(wildcard *.$(SOURCE_EXT))
 OBJECTS=$(SOURCES:.$(SOURCE_EXT)=.$(OBJ_EXT))
 
 # non-file targets
-.PHONY: clean cleanall run test debug
+.PHONY: clean cleanall run
 
 ifeq ($(DEFAULT_DEBUG),y)
 ALL_TARGET=debug
@@ -54,11 +54,11 @@ $(EXECUTABLE): $(OBJECTS)
 %.$(OBJ_EXT): %.$(SOURCE_EXT) $(wildcard *.$(HEAD_EXT))
 	$(CC) $(CFLAGS) $< -o $@
 
-test: all
+build-test: all
 	$(CC) $(CFLAGS) $(TCFLAGS) $(TFILE) -o $(TOBJECT)
 	$(CC) $(LDFLAGS) $(TLFLAGS) $(TOBJECT) $(filter-out $(MAINOBJ),$(OBJECTS)) -o $(TEXECUTABLE)
 
-run-test: test
+test: build-test
 	./$(TEXECUTABLE)
 
 cleanall: clean
