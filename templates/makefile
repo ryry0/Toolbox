@@ -1,5 +1,7 @@
 SOURCE_EXT=c
 OBJ_EXT=o
+T_EXT=cmocka
+TOBJ_EXT=ocmocka
 HEAD_EXT=h
 OBJ_HEAD_EXT=gch
 CC=gcc
@@ -8,6 +10,14 @@ LDFLAGS=
 DFLAGS=-DDEBUG -ggdb3 -Wall -fdiagnostics-color=auto
 RFLAGS=-O2
 PFLAGS=-pg
+TCFLAGS=-x c
+TLFLAGS=-lcmocka
+TFILE=$(wildcard *.$(T_EXT))
+TOBJECT=$(TFILE:.$(T_EXT)=.$(TOBJ_EXT))
+TEXECUTABLE=test.x
+MAINOBJ=main.o
+
+COVFLAGS=-fprofile-arcs -ftest-coverage -O0
 DEFAULT_DEBUG=y
 
 EXECUTABLE=out.x
@@ -15,6 +25,7 @@ EXECUTABLE=out.x
 SOURCES=$(wildcard *.$(SOURCE_EXT))
 OBJECTS=$(SOURCES:.$(SOURCE_EXT)=.$(OBJ_EXT))
 
+# non-file targets
 .PHONY: clean cleanall run test debug
 
 ifeq ($(DEFAULT_DEBUG),y)
@@ -31,6 +42,9 @@ debug: $(SOURCES) $(EXECUTABLE)
 profile: CFLAGS +=$(PFLAGS)
 profile: release
 
+coverage: CFLAGS +=$(COVFLAGS)
+coverage: $(SOURCES) $(EXECUTABLE)
+
 release: CFLAGS += $(RFLAGS)
 release: $(SOURCES) $(EXECUTABLE)
 
@@ -40,6 +54,12 @@ $(EXECUTABLE): $(OBJECTS)
 %.$(OBJ_EXT): %.$(SOURCE_EXT) $(wildcard *.$(HEAD_EXT))
 	$(CC) $(CFLAGS) $< -o $@
 
+test: all
+	$(CC) $(CFLAGS) $(TCFLAGS) $(TFILE) -o $(TOBJECT)
+	$(CC) $(LDFLAGS) $(TLFLAGS) $(TOBJECT) $(filter-out $(MAINOBJ),$(OBJECTS)) -o $(TEXECUTABLE)
+
+run-test: test
+	./$(TEXECUTABLE)
 
 cleanall: clean
 	rm -f $(EXECUTABLE)
