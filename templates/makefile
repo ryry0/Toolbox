@@ -5,6 +5,7 @@ TOBJ_EXT=ocmocka
 HEAD_EXT=h
 OBJ_HEAD_EXT=gch
 CC=gcc
+
 CFLAGS=-c -I. -std=c11
 LDFLAGS=
 DFLAGS=-DDEBUG -ggdb3 -Wall -fdiagnostics-color=auto
@@ -12,12 +13,13 @@ RFLAGS=-O2
 PFLAGS=-pg
 TCFLAGS=-x c
 TLFLAGS=-lcmocka
+COVFLAGS=-fprofile-arcs -ftest-coverage -O0
+
 TFILE=$(wildcard *.$(T_EXT))
 TOBJECT=$(TFILE:.$(T_EXT)=.$(TOBJ_EXT))
 TEXECUTABLE=test.x
 MAINOBJ=main.o
 
-COVFLAGS=-fprofile-arcs -ftest-coverage -O0
 DEFAULT_DEBUG=y
 
 EXECUTABLE=out.x
