@@ -39,6 +39,12 @@ all: $(ALL_TARGET)
 debug: CFLAGS += $(DFLAGS)
 debug: $(SOURCES) $(EXECUTABLE)
 
+win32: CC=i686-w64-mingw32-gcc
+win32: $(SOURCES) $(EXECUTABLE)
+
+win64: CC=x86_64-w64-mingw32-gcc
+win64: $(SOURCES) $(EXECUTABLE)
+
 profile: CFLAGS +=$(PFLAGS)
 profile: release
 
