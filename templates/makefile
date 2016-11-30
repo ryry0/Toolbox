@@ -61,7 +61,7 @@ $(EXECUTABLE): $(OBJECTS)
 	$(CC) $(CFLAGS) $< -o $@
 
 build-test: all
-	$(CC) $(CFLAGS) $(TCFLAGS) $(TFILE) -o $(TOBJECT)
+	$(CC) $(CFLAGS) $(TCFLAGS) $(TFILE) -o $(TOBJECT) && \
 	$(CC) $(LDFLAGS) $(TLFLAGS) $(TOBJECT) $(filter-out $(MAINOBJ),$(OBJECTS)) -o $(TEXECUTABLE)
 
 test: build-test
@@ -94,3 +94,5 @@ grind: debug
 leak-check: debug
 	valgrind --leak-check=full ./$(EXECUTABLE)
 
+analyze-profile: profile run
+	gprof $(EXECUTABLE) > profile
