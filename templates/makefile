@@ -1,33 +1,51 @@
+# File extensions
 SOURCE_EXT=c
 OBJ_EXT=o
-T_EXT=cmocka
-TOBJ_EXT=ocmocka
 HEAD_EXT=h
 OBJ_HEAD_EXT=gch
+
+LINEX_EXT=x
+WINEX_EXT=exe
+
+T_EXT=cmocka
+TOBJ_EXT=ocmocka
+
+# Compilers and flags
+WIN64CC=x86_64-w64-mingw32-gcc
+WIN32CC=i686-w64-mingw32-gcc
 CC=gcc
 
-CFLAGS=-c -I. -std=c11
-LDFLAGS=
+ALLCFLAGS =-c -I. -std=c11
+ALLLDFLAGS =
+
+WINCFLAGS=$(ALLCFLAGS)
+WINLDFLAGS=$(ALLLDFLAGS)
+
+LINCFLAGS=$(ALLCFLAGS)
+LINLDFLAGS=$(ALLLDFLAGS)
+
 DFLAGS=-DDEBUG -ggdb3 -Wall -fdiagnostics-color=auto
 RFLAGS=-O2
 PFLAGS=-pg
 TCFLAGS=-x c
 TLFLAGS=-lcmocka
 COVFLAGS=-fprofile-arcs -ftest-coverage -O0
+DEFAULT_DEBUG=y
 
+# Files
+SOURCES=$(wildcard *.$(SOURCE_EXT))
+OBJECTS=$(SOURCES:.$(SOURCE_EXT)=.$(OBJ_EXT))
+EXECUTABLE=out.x
+WINEXE=$(EXECUTABLE:.$(LINEX_EXT)=.$(WINEX_EXT))
+
+# Test files
 TFILE=$(wildcard *.$(T_EXT))
 TOBJECT=$(TFILE:.$(T_EXT)=.$(TOBJ_EXT))
 TEXECUTABLE=test.x
 MAINOBJ=main.o
 
-DEFAULT_DEBUG=y
 
-EXECUTABLE=out.x
-
-SOURCES=$(wildcard *.$(SOURCE_EXT))
-OBJECTS=$(SOURCES:.$(SOURCE_EXT)=.$(OBJ_EXT))
-
-# non-file targets
+# Non-file targets
 .PHONY: clean cleanall run
 
 ifeq ($(DEFAULT_DEBUG),y)
@@ -38,14 +56,10 @@ endif
 
 all: $(ALL_TARGET)
 
+debug: CFLAGS = $(LINCFLAGS)
 debug: CFLAGS += $(DFLAGS)
+debug: LDFLAGS = $(LINLDFLAGS)
 debug: $(SOURCES) $(EXECUTABLE)
-
-win32: CC=i686-w64-mingw32-gcc
-win32: $(SOURCES) $(EXECUTABLE)
-
-win64: CC=x86_64-w64-mingw32-gcc
-win64: $(SOURCES) $(EXECUTABLE)
 
 profile: CFLAGS +=$(PFLAGS)
 profile: release
@@ -56,15 +70,28 @@ coverage: $(SOURCES) $(EXECUTABLE)
 release: CFLAGS += $(RFLAGS)
 release: $(SOURCES) $(EXECUTABLE)
 
+win32: CC=$(WIN32CC)
+win32: CFLAGS = $(WINCFLAGS)
+win32: LDFLAGS = $(WINLDFLAGS)
+win32: $(SOURCES) $(WINEXE)
+
+win64: CC=$(WIN64CC)
+win64: CFLAGS = $(WINCFLAGS)
+win64: LDFLAGS = $(WINLDFLAGS)
+win64: $(SOURCES) $(WINEXE)
+
+$(WINEXE): $(OBJECTS)
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 
 %.$(OBJ_EXT): %.$(SOURCE_EXT) $(wildcard *.$(HEAD_EXT))
 	$(CC) $(CFLAGS) $< -o $@
 
 build-test: all
 	$(CC) $(CFLAGS) $(TCFLAGS) $(TFILE) -o $(TOBJECT) && \
-	$(CC) $(LDFLAGS) $(TLFLAGS) $(TOBJECT) $(filter-out $(MAINOBJ),$(OBJECTS)) -o $(TEXECUTABLE)
+	$(CC) $(TOBJECT) $(filter-out $(MAINOBJ),$(OBJECTS)) $(LDFLAGS) $(TLFLAGS) -o $(TEXECUTABLE)
 
 test: build-test
 	./$(TEXECUTABLE)
