@@ -1,24 +1,39 @@
-#INCLUDe <serialnix.h>
+#include <serial.h>
 
-int open_port(char * serialAddr)//returns the file descriptor or -1;
-{
-	int fd; //file descriptor for the port
-	fd = open(serialAddr, O_RDWR | O_NOCTTY | O_NDELAY);
-	if (fd==-1)
-	{
+#ifdef __linux__
+
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+
+struct sr_port_s {
+  int fd;
+};
+
+sr_port_t sr_OpenPort(char *serial_addr) {
+  sr_port_t port = malloc(sizeof(struct sr_port_s));
+
+	port->fd = open(serial_addr, O_RDWR | O_NOCTTY | O_NDELAY);
+	if (port->fd==-1) {
 		perror("open_port: Unable to open serial port");
+		free(port);
+		return NULL;
 	}
 	else
-		fcntl(fd, F_SETFL, 0);
+		fcntl(port->fd, F_SETFL, 0);
 
-	return fd;
-
+	return port;
 }
 
-int init_serial_port(int fd) //returns -1 if not successful
-{
+bool sr_InitPort(sr_port_t port) {
 	struct termios options;
-	tcgetattr(fd, &options);
+	tcgetattr(port->fd, &options);
 	cfsetispeed(&options, B9600);
 	cfsetospeed(&options, B9600);
 	options.c_cflag |= (CLOCAL | CREAD);
@@ -30,5 +45,24 @@ int init_serial_port(int fd) //returns -1 if not successful
 	options.c_iflag &= ~(IXON | IXOFF | IXANY);
 	options.c_oflag &= ~OPOST;
 
-	return tcsetattr(fd, TCSANOW, &options);
+	if (tcsetattr(port->fd, TCSANOW, &options) == 0)
+	  return true;
+  else
+    return false;
 }
+
+size_t sr_ReadPort(sr_port_t port, uint8_t *buffer, size_t num) {
+  return read(port->fd, buffer, num);
+}
+
+size_t sr_WritePort(sr_port_t port, uint8_t *buffer, size_t num) {
+  return write(port->fd, buffer, num);
+}
+
+void sr_ClosePort(sr_port_t port) {
+  if (port != NULL) {
+    close(port->fd);
+    free(port);
+  }
+}
+#endif
