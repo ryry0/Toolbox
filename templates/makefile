@@ -97,7 +97,7 @@ test: build-test
 	./$(TEXECUTABLE)
 
 cleanall: clean
-	rm -f $(EXECUTABLE)
+	rm -f $(EXECUTABLE) $(WINEXE)
 
 proper: clean cleanall
 
