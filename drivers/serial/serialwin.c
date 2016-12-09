@@ -90,7 +90,7 @@ bool sr_InitPort(sr_port_t port) {
   return true;
 }
 
-size_t sr_ReadPort(sr_port_t port, uint8_t *buffer, size_t num) {
+size_t sr_WritePort(sr_port_t port, uint8_t *buffer, size_t num) {
   DWORD num_bytes_written;
 
   WriteFile(port->h_port,
@@ -102,8 +102,9 @@ size_t sr_ReadPort(sr_port_t port, uint8_t *buffer, size_t num) {
   return num_bytes_written;
 }
 
-size_t sr_WritePort(sr_port_t port, uint8_t *buffer, size_t num) {
+size_t sr_ReadPort(sr_port_t port, uint8_t *buffer, size_t num) {
   DWORD num_bytes_read;
+
   ReadFile(port->h_port,
       buffer,
       num,
