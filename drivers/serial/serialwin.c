@@ -29,7 +29,7 @@ sr_port_t sr_OpenPort(char *serial_addr) {
     return port;
 }
 
-bool sr_InitPort(sr_port_t port) {
+bool sr_InitPort(sr_port_t port, int32_t baudrate) {
   DCB dcb; //struct defined by windows that deals with serial communications
   //set timeouts
   COMMTIMEOUTS timeouts;
@@ -61,7 +61,7 @@ bool sr_InitPort(sr_port_t port) {
      */
 
   //BuildCommDCB(buildstr, &dcb);
-  dcb.BaudRate = CBR_9600; // Baud rate for the CAN converter
+  dcb.BaudRate = baudrate; // Baud rate for the CAN converter
   dcb.ByteSize = 8; // 8 bits / char
   dcb.StopBits = ONESTOPBIT; // One stop bit
   dcb.Parity = NOPARITY; // No parity
