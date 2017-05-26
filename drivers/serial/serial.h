@@ -24,7 +24,7 @@ sr_port_t sr_OpenPort(char *serial_addr); //returns an object or null
  *
  * \param port serial port handle
  */
-bool sr_InitPort(sr_port_t port, int32_t baudrate);
+bool sr_InitPort(sr_port_t port, int32_t baud_rate);
 
 /**
  * \brief OS agnostic read into byte array

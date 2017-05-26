@@ -31,11 +31,11 @@ sr_port_t sr_OpenPort(char *serial_addr) {
 	return port;
 }
 
-bool sr_InitPort(sr_port_t port, int32_t baudrate) {
+bool sr_InitPort(sr_port_t port, int32_t baud_rate) {
 	struct termios options;
 	tcgetattr(port->fd, &options);
-	cfsetispeed(&options, baudrate);
-	cfsetospeed(&options, baudrate);
+	cfsetispeed(&options, baud_rate);
+	cfsetospeed(&options, baud_rate);
 	options.c_cflag |= (CLOCAL | CREAD);
 	options.c_cflag &= ~PARENB;
 	options.c_cflag &= ~CSTOPB;
