@@ -1,8 +1,9 @@
 #include <packet.h>
-#include <serial.h>
 #include <string.h>
+#include <cobs.h>
 
 #define PACKET_HEADER 0x00
+#define HEADER_LENGTH 3
 #define HEADER_INDEX 0
 #define COBS_INDEX 1
 #define LENGTH_INDEX 2
@@ -18,13 +19,7 @@ void pkt_clear(pkt_generic_t *packet) {
 }
 
 /* piecewise read returns true when finished reading */
-bool pkt_readByte(pkt_generic_t *packet, sr_port_t port) {
-  uint8_t input = 0;
-
-  //make sure it is actually reading something.
-  if (!sr_ReadPort(port, &input, sizeof(input)))
-    return false;
-
+bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
   printf("%d:%x ", packet->index, input);
 
   if ((packet->index == 0) && (input != PACKET_HEADER))
@@ -34,15 +29,25 @@ bool pkt_readByte(pkt_generic_t *packet, sr_port_t port) {
   packet->index++;
 
   if ((packet->index > LENGTH_INDEX) &&
-      (packet->index >= packet->payload_len + 4)) {
+      (packet->index >= packet->length + HEADER_LENGTH)) {
     packet->index = 0;
+    packet->total_length = packet->length + HEADER_LENGTH;
+
+    cobs_decodeInPlace(packet->data, packet->total_length);
+
     printf("\n");
     return true;
   }
   return false;
 }
 
+uint8_t *pkt_encodeBuffer(pkt_generic_t *packet) {
+  cobs_encodeInPlace(packet->data, packet->total_length);
+  return packet->data;
+}
+
 /* piecewise read returns true when finished reading */
+/*
 static bool pkt_readInputBe(pkt_generic_t *packet, sr_port_t port) {
   uint8_t input = 0;
 
@@ -58,6 +63,7 @@ static bool pkt_readInputBe(pkt_generic_t *packet, sr_port_t port) {
   }
   return false;
 }
+*/
 
 void pkt_print(pkt_generic_t *packet) {
   /*
