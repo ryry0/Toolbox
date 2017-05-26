@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 /*
    cobs Encode in place does the encoding on the same array passed in, and does
@@ -10,17 +11,15 @@
    reasons. Encode in place assumes that the first byte is the header byte and
    the second byte is the code byte.
    */
-void cobsEncodeInPlace(char* buffer, const unsigned int length);
+void cobs_encodeInPlace(uint8_t* buffer, const uint8_t total_length);
 
 /*
-   on non-embedded systems, should return size_t, and should be size_t length.
-   Same thing applies to cobes decode.
    For destination, pass in an array that is 2 bytes larger than the source
    length.
    */
-void cobsEncode(const char* source,
-    const unsigned int length,
-    char* destination);
+void cobs_encode(const uint8_t* source,
+    const uint8_t length,
+    uint8_t* destination);
 
 
 /*
@@ -28,19 +27,17 @@ void cobsEncode(const char* source,
    assumes that the first byte is the header byte and the second byte is the code
    byte.
    */
-void cobsDecodeInPlace(char* buffer,
-    const unsigned int length);
+void cobs_decodeInPlace(uint8_t* buffer,
+    const uint8_t length);
 
 
 /*
-   on non-embedded systems, should return size_t, and should be size_t length.
-   Same thing applies to cobes decode.
    For destination, pass in an array that is at least as large as the source
    length minus 2.
    Strips the  header and code byte from the data.
    */
-void cobsDecode(const char* source,
-    const unsigned int length,
-    char* destination);
+void cobs_decode(const uint8_t* source,
+    const uint8_t length,
+    uint8_t* destination);
 
 #endif
