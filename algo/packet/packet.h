@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 #define MAX_PACKET_LENGTH 251
-#define pkt_interp(type, packet) ((type *) packet.payload)
+#define pkt_interp(type, packet) ((type *) (packet.payload))
 
 typedef struct {
   union {
