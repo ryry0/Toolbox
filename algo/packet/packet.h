@@ -7,6 +7,7 @@
 
 #define MAX_PACKET_LENGTH 251
 #define pkt_interp(type, packet) ((type *) (packet.payload))
+#define pkt_interpPtr(type, packet) ((type *) (packet->payload))
 
 typedef struct {
   union {
@@ -32,6 +33,13 @@ bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input);
 uint8_t *pkt_encodeBuffer(pkt_generic_t *packet);
 void pkt_print(pkt_generic_t *packet);
 void pkt_clear(pkt_generic_t *packet);
-size_t pkt_getIndex(pkt_generic_t *packet);
+
+inline size_t pkt_getIndex(pkt_generic_t *packet) { return packet->index; };
+
+inline size_t pkt_getTotalLength(pkt_generic_t *packet)
+{ return packet->total_length };
+
+inline void pkt_setTotalLength(pkt_generic_t *packet, size_t total_length)
+{ packet->total_length = total_length };
 
 #endif

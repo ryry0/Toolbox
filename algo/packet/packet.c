@@ -18,10 +18,6 @@ void pkt_clear(pkt_generic_t *packet) {
   memset(packet, 0, sizeof(pkt_generic_t));
 }
 
-size_t pkt_getIndex(pkt_generic_t *packet) {
-  return packet->index;
-}
-
 /* piecewise read returns true when finished reading */
 bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
   printf("%d:%x ", packet->index, input);
