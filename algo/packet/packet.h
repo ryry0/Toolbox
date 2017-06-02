@@ -34,12 +34,12 @@ uint8_t *pkt_encodeBuffer(pkt_generic_t *packet);
 void pkt_print(pkt_generic_t *packet);
 void pkt_clear(pkt_generic_t *packet);
 
-inline size_t pkt_getIndex(pkt_generic_t *packet) { return packet->index; };
+inline size_t pkt_getIndex(pkt_generic_t *packet) { return packet->index; }
 
 inline size_t pkt_getTotalLength(pkt_generic_t *packet)
-{ return packet->total_length };
+{ return packet->total_length; }
 
 inline void pkt_setTotalLength(pkt_generic_t *packet, size_t total_length)
-{ packet->total_length = total_length };
+{ packet->total_length = total_length; }
 
 #endif
