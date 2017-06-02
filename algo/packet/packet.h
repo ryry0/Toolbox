@@ -32,5 +32,6 @@ bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input);
 uint8_t *pkt_encodeBuffer(pkt_generic_t *packet);
 void pkt_print(pkt_generic_t *packet);
 void pkt_clear(pkt_generic_t *packet);
+size_t pkt_getIndex(pkt_generic_t *packet);
 
 #endif
