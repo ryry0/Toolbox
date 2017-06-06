@@ -128,7 +128,26 @@ void pid_velocUpdate(pid_data_t *pid, const float current_error,
     A*rb_get(output_buffer, 0) + //[n-1]
     B*rb_get(output_buffer, 1) + //[n-2]
     C*rb_get(output_buffer, 2) + //[n-3]
-    D*du*dt;
+    D*du*dt; //D*du*dt
+
+  rb_pushFront(output_buffer, u); //update the error buffer
+  pid->pid_output = u;
+}
+
+void pid_minUpdate(pid_data_t *pid, const float current_error,
+    const float dt) {
+  float Kp = pid->proportional_gain;
+  float Ki = pid->integral_gain;
+  float Kd = pid->derivative_gain;
+  struct ring_buffer_s *error_buffer = &pid->error_buffer_ring;
+  struct ring_buffer_s *output_buffer = &pid->output_buffer_ring;
+
+  rb_pushFront(error_buffer, current_error); //update the error buffer
+
+  float u =
+    rb_get(output_buffer, 0) + //u[n-1]
+    Kp*rb_get(error_buffer, 1) + //Kp*e[n-1]
+    (Ki*dt - Kp)*rb_get(error_buffer, 0); //(Ki*dt - Kp) * e[n]
 
   rb_pushFront(output_buffer, u); //update the error buffer
   pid->pid_output = u;
