@@ -3,7 +3,6 @@
 #include <cobs.h>
 
 #define PACKET_HEADER 0x00
-#define HEADER_LENGTH 3
 #define HEADER_INDEX 0
 #define COBS_INDEX 1
 #define LENGTH_INDEX 2
@@ -29,9 +28,9 @@ bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
   packet->index++;
 
   if ((packet->index > LENGTH_INDEX) &&
-      (packet->index >= packet->length + HEADER_LENGTH)) {
+      (packet->index >= packet->length + PKT_HEADER_LENGTH)) {
     packet->index = 0;
-    packet->total_length = packet->length + HEADER_LENGTH;
+    packet->total_length = packet->length + PKT_HEADER_LENGTH;
 
     cobs_decodeInPlace(packet->data, packet->total_length);
 

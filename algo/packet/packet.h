@@ -6,6 +6,7 @@
 #include <stdbool.h>
 
 #define MAX_PACKET_LENGTH 251
+#define PKT_HEADER_LENGTH 3
 #define pkt_interp(type, packet) ((type *) (packet.payload))
 #define pkt_interpPtr(type, packet) ((type *) (packet->payload))
 
