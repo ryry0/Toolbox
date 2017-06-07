@@ -13,6 +13,7 @@ void pkt_init(pkt_generic_t *packet) {
 }
 
 
+/* maybe only have it clear total_length bytes? */
 void pkt_clear(pkt_generic_t *packet) {
   memset(packet, 0, sizeof(pkt_generic_t));
 }
@@ -28,9 +29,9 @@ bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
   packet->index++;
 
   if ((packet->index > LENGTH_INDEX) &&
-      (packet->index >= packet->length + PKT_HEADER_LENGTH)) {
+      (packet->index >= packet->type_payload_length + PKT_HEADER_LENGTH)) {
     packet->index = 0;
-    packet->total_length = packet->length + PKT_HEADER_LENGTH;
+    packet->total_length = packet->type_payload_length + PKT_HEADER_LENGTH;
 
     cobs_decodeInPlace(packet->data, packet->total_length);
 

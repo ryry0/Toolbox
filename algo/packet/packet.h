@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define MAX_PACKET_LENGTH 251
+#define MAX_PAYLOAD_LENGTH 251
 #define PKT_HEADER_LENGTH 3
 #define pkt_interp(type, packet) ((type *) (packet.payload))
 #define pkt_interpPtr(type, packet) ((type *) (packet->payload))
@@ -15,9 +15,9 @@ typedef struct {
     struct {
       uint8_t header;
       uint8_t cobs_byte;
-      uint8_t length; //includes the type, so always nonzero
+      uint8_t type_payload_length; //includes the type, so always nonzero
       uint8_t type;
-      uint8_t payload[MAX_PACKET_LENGTH];
+      uint8_t payload[MAX_PAYLOAD_LENGTH];
     };
     uint8_t data[255];
   };
