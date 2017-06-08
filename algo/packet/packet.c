@@ -53,6 +53,20 @@ void pkt_decodePacket(pkt_generic_t *packet) {
   cobs_decodeInPlace(packet->data, packet->total_length);
 }
 
+bool pkt_decodeByteHandler(
+    pkt_generic_t *packet,
+    uint8_t input,
+    pkt_handler_func_t callback) {
+
+  bool retval = pkt_decodeByte(packet, input);
+  if (retval) {
+    pkt_decodePacket(packet);
+    (*callback)(packet);
+    pkt_clear(packet);
+  }
+  return retval;
+}
+
 /* piecewise read returns true when finished reading */
 /*
 static bool pkt_readInputBe(pkt_generic_t *packet, sr_port_t port) {

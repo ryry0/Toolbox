@@ -25,6 +25,8 @@ typedef struct {
   uint8_t total_length;
 } pkt_generic_t;
 
+typedef void (*pkt_handler_func_t)(pkt_generic_t *);
+
 void pkt_init(pkt_generic_t *packet);
 bool pkt_readByte(pkt_generic_t *packet, uint8_t input);
 void pkt_decodePacket(pkt_generic_t *packet);
@@ -37,6 +39,9 @@ void pkt_print(pkt_generic_t *packet);
 void pkt_clear(pkt_generic_t *packet);
 
 inline size_t pkt_getIndex(pkt_generic_t *packet) { return packet->index; }
+bool pkt_decodeByteHandler(pkt_generic_t *packet, uint8_t input,
+    pkt_handler_func_t callback);
+
 
 inline size_t pkt_getTotalLength(pkt_generic_t *packet)
 { return packet->total_length; }
