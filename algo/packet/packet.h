@@ -26,7 +26,8 @@ typedef struct {
 } pkt_generic_t;
 
 void pkt_init(pkt_generic_t *packet);
-bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input);
+bool pkt_readByte(pkt_generic_t *packet, uint8_t input);
+void pkt_decodePacket(pkt_generic_t *packet);
 
 //encode buffer performs encoding of the packet so that it is ready to send.
 //returns a byte pointer to the packet structure.

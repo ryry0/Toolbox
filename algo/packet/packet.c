@@ -20,7 +20,7 @@ void pkt_clear(pkt_generic_t *packet) {
 }
 
 /* piecewise read returns true when finished reading */
-bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
+bool pkt_readByte(pkt_generic_t *packet, uint8_t input) {
 #ifdef PRINTF_DEBUG
   printf("%d:%x ", packet->index, input);
 #endif
@@ -36,8 +36,6 @@ bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
     packet->index = 0;
     packet->total_length = packet->type_payload_length + PKT_HEADER_LENGTH;
 
-    cobs_decodeInPlace(packet->data, packet->total_length);
-
 #ifdef PRINTF_DEBUG
     printf("\n");
 #endif
@@ -49,6 +47,10 @@ bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
 uint8_t *pkt_encodeBuffer(pkt_generic_t *packet) {
   cobs_encodeInPlace(packet->data, packet->total_length);
   return packet->data;
+}
+
+void pkt_decodePacket(pkt_generic_t *packet) {
+  cobs_decodeInPlace(packet->data, packet->total_length);
 }
 
 /* piecewise read returns true when finished reading */
