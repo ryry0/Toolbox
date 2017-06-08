@@ -7,6 +7,7 @@
 #define COBS_INDEX 1
 #define LENGTH_INDEX 2
 #define TYPE_INDEX 3
+//#define PRINTF_DEBUG
 
 void pkt_init(pkt_generic_t *packet) {
   memset(packet, 0, sizeof(pkt_generic_t));
@@ -20,7 +21,9 @@ void pkt_clear(pkt_generic_t *packet) {
 
 /* piecewise read returns true when finished reading */
 bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
+#ifdef PRINTF_DEBUG
   printf("%d:%x ", packet->index, input);
+#endif
 
   if ((packet->index == 0) && (input != PACKET_HEADER))
     return false;
@@ -35,7 +38,9 @@ bool pkt_decodeByte(pkt_generic_t *packet, uint8_t input) {
 
     cobs_decodeInPlace(packet->data, packet->total_length);
 
+#ifdef PRINTF_DEBUG
     printf("\n");
+#endif
     return true;
   }
   return false;
@@ -66,7 +71,7 @@ static bool pkt_readInputBe(pkt_generic_t *packet, sr_port_t port) {
 */
 
 void pkt_print(pkt_generic_t *packet) {
-  /*
+#ifdef PRINTF_DEBUG
   printf("header: %x\n", packet->header_byte);
   printf("imu_ax: %d\n", packet->imu_ax);
   printf("imu_ay: %d\n", packet->imu_ay);
@@ -74,6 +79,6 @@ void pkt_print(pkt_generic_t *packet) {
   printf("imu_gx: %d\n", packet->imu_gx);
   printf("imu_gy: %d\n", packet->imu_gy);
   printf("imu_gz: %d\n", packet->imu_gz);
-  */
+#endif
 }
 
