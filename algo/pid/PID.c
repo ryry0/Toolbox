@@ -136,9 +136,9 @@ void pid_velocUpdate(pid_data_t *pid, const float current_error,
 
 void pid_minUpdate(pid_data_t *pid, const float current_error,
     const float dt) {
-  float Kp = pid->proportional_gain;
-  float Ki = pid->integral_gain;
-  float Kd = pid->derivative_gain;
+  const float Kp = pid->proportional_gain;
+  const float Ki = pid->integral_gain;
+  const float Kd = pid->derivative_gain;
   struct ring_buffer_s *error_buffer = &pid->error_buffer_ring;
   struct ring_buffer_s *output_buffer = &pid->output_buffer_ring;
 
