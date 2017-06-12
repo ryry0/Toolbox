@@ -28,6 +28,7 @@ typedef struct {
 typedef void (*pkt_handler_func_t)(pkt_generic_t *);
 
 void pkt_init(pkt_generic_t *packet);
+
 bool pkt_readByte(pkt_generic_t *packet, uint8_t input);
 void pkt_decodePacket(pkt_generic_t *packet);
 
@@ -48,5 +49,14 @@ inline size_t pkt_getTotalLength(const pkt_generic_t *packet)
 
 inline void pkt_setTotalLength(pkt_generic_t *packet, size_t total_length)
 { packet->total_length = total_length; }
+
+
+inline void pkt_setHeader(pkt_generic_t *packet, uint8_t type, size_t length) {
+  packet->header = 0x00;
+  packet->cobs_byte = 0x00;
+  packet->type = type;
+  packet->type_payload_length = length;
+  packet->total_length = PKT_HEADER_LENGTH + length;
+}
 
 #endif

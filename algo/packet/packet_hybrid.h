@@ -2,8 +2,13 @@
 #define PACKET_HYBRID_H_
 #include <packet.h>
 
-typedef enum {
+//can't use sizeof structs because of struct packing.
+#define PKT_DBG_PID_LEN (1 + 5*sizeof(float) + 1*sizeof(uint16_t))
+#define PKT_SET_PID_LEN (1 + 4*sizeof(float))
+
+typedef enum pkt_type_s {
   PKT_SET_PID,
+  PKT_DBG_PID,
   PKT_DEBUG_STR,
   PKT_DATA_START = 's',
   PKT_DATA_STOP = 'n',
@@ -21,16 +26,18 @@ typedef struct {
   float Kd;
   float current;
   int16_t speed;
-} pkt_pid_t;
+} pkt_dbg_pid_t;
+
+typedef struct {
+  float setpoint;
+  float Kp;
+  float Ki;
+  float Kd;
+} pkt_set_pid_t;
 
 typedef struct {
   char msg[MAX_PAYLOAD_LENGTH];
 } pkt_str_msg_t;
 
-inline void pkt_setTypeNoPayload(pkt_generic_t *packet, pkt_type_t type) {
-  packet->type = type;
-  packet->type_payload_length = 1;
-  packet->total_length = PKT_HEADER_LENGTH + 1;
-}
 
 #endif
