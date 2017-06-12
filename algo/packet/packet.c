@@ -58,7 +58,7 @@ bool pkt_decodeByteHandler(
     uint8_t input,
     pkt_handler_func_t callback) {
 
-  bool retval = pkt_decodeByte(packet, input);
+  bool retval = pkt_readByte(packet, input);
   if (retval) {
     pkt_decodePacket(packet);
     (*callback)(packet);
