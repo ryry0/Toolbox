@@ -9,6 +9,7 @@
 typedef enum pkt_type_s {
   PKT_SET_PID,
   PKT_DBG_PID,
+  PKT_ZERO_PID,
   PKT_DEBUG_STR,
   PKT_DATA_START = 's',
   PKT_DATA_STOP = 'n',
