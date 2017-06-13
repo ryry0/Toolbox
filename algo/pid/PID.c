@@ -121,7 +121,7 @@ void pid_velocUpdate(pid_data_t *pid, const float current_error,
   float du =
     Kp * fdFirstDer(error_buffer, dt) +
     Ki*current_error +
-    Kd*fdSecondDer(error_buffer, current_error);
+    Kd*fdSecondDer(error_buffer, dt);
 
   float u =
     //this is the previous value since current val [n] not pushed
