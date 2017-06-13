@@ -7,6 +7,7 @@
 
 #define MAX_PAYLOAD_LENGTH 251
 #define PKT_HEADER_LENGTH 3
+#define PKT_TYPE_LENGTH 1
 #define pkt_interp(type, packet) ((type *) (packet.payload))
 #define pkt_interpPtr(type, packet) ((type *) (packet->payload))
 
@@ -57,6 +58,10 @@ inline void pkt_setHeader(pkt_generic_t *packet, uint8_t type, size_t length) {
   packet->type = type;
   packet->type_payload_length = length;
   packet->total_length = PKT_HEADER_LENGTH + length;
+}
+
+inline void pkt_setHeaderTypeOnly(pkt_generic_t *packet, uint8_t type) {
+  pkt_setHeader(packet, type, PKT_TYPE_LENGTH);
 }
 
 #endif
