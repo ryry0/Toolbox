@@ -39,13 +39,19 @@ void pid_init(pid_data_t *pid,
 
 //traditional PID calculation
 void pid_update(pid_data_t *pid,
-    const float *current_error,
-    const float *delta_t);
+    const float current_error,
+    const float dt);
 
-void pid_fixedUpdate(pid_data_t *pid, const float *current_error);
+void pid_fixedUpdate(pid_data_t *pid, const float current_error, const float dt);
 
 //velocity PID implementation
 void pid_velocUpdate(pid_data_t *pid, const float current_error,
     const float dt);
+
+float pid_FeedbackCtrl(pid_data_t *pid, const float setpoint,
+    const float sensor, const float dt, const pid_method_t method);
+
+float pid_feedforwardFeedbackCtrl(pid_data_t *pid, const float setpoint,
+    const float sensor, const float dt, const pid_method_t method);
 
 #endif

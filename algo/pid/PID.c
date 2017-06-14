@@ -71,37 +71,38 @@ void pid_setConstants(pid_data_t *pid, const float proportional_gain,
   pid->integral_error = 0;
 }
 
-void pid_update(pid_data_t *pid, const float *current_error, const float *delta_t) {
+void pid_update(pid_data_t *pid, const float current_error, const float dt) {
   float error_differential = 0;
 
-  pid->integral_error += *current_error * (*delta_t);
+  pid->integral_error += current_error * dt;
   pid->integral_error = constrain(pid->integral_error, -pid->integral_guard,
       pid->integral_guard);
-  error_differential = (*current_error - pid->previous_error)/(*delta_t);
+  error_differential = (current_error - pid->previous_error)/dt;
 
-  pid->pid_output = (pid->proportional_gain * (*current_error)) +
+  pid->pid_output = (pid->proportional_gain * current_error) +
     (pid->integral_gain    * pid->integral_error) +
     (pid->derivative_gain  * error_differential);
 
-  pid->previous_error = *current_error;
+  pid->previous_error = current_error;
 } //end pidControl()
 
 //fixed update PID is meant to be called at constant time intervals,
-//therefore it does not need delta_t
-void pid_fixedUpdate(pid_data_t *pid, const float *current_error) {
+//therefore it does not need dt
+//It only has dt to match the function signature of the others
+void pid_fixedUpdate(pid_data_t *pid, const float current_error, const float dt) {
   float error_differential = 0;
 
-  pid->integral_error += *current_error;
+  pid->integral_error += current_error;
   pid->integral_error = constrain(pid->integral_error, -pid->integral_guard,
       pid->integral_guard);
 
-  error_differential = (*current_error - pid->previous_error);
+  error_differential = (current_error - pid->previous_error);
 
-  pid->pid_output = (pid->proportional_gain * (*current_error)) +
+  pid->pid_output = (pid->proportional_gain * (current_error)) +
     (pid->integral_gain    * pid->integral_error) +
     (pid->derivative_gain  * error_differential);
 
-  pid->previous_error = *current_error;
+  pid->previous_error = current_error;
 } //end pidControl()
 
 void pid_velocUpdate(pid_data_t *pid, const float current_error,
@@ -154,22 +155,18 @@ void pid_minUpdate(pid_data_t *pid, const float current_error,
   pid->pid_output = u;
 }
 
-static float pid_Feedback(pid_data_t *pid, float setpoint,
-    float sensor, float dt, pid_method_t method) {
+float pid_FeedbackCtrl(pid_data_t *pid, const float setpoint,
+    const float sensor, const float dt, const pid_method_t method) {
   //get error
-  float error = setpoint - sensor;
+  const float error = setpoint - sensor;
   //update PID
-  (*method)(current_pid, error, dt);
+  (*method)(pid, error, dt);
 
-  return pid.pid_output;
+  return pid->pid_output;
 }
 
-static float pid_feedforwardFeedback(pid_data_t *pid, float setpoint,
-    float sensor, float dt, pid_method_t method) {
-  //get error
-  float error = setpoint - sensor;
-  //update PID
-  (*method)(current_pid, error, dt);
+float pid_feedforwardFeedbackCtrl(pid_data_t *pid, const float setpoint,
+    const float sensor, const float dt, const pid_method_t method) {
 
-  return setpoint - pid.pid_output;
+  return setpoint - pid_FeedbackCtrl(pid, setpoint, sensor, dt, method);
 }
