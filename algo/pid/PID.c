@@ -57,6 +57,7 @@ void pid_init(pid_data_t *pid, const float proportional_gain,
   //set contents of ring buffers to zero
   rb_init(&pid->error_buffer_ring, PID_BUFFER_SIZE);
   rb_init(&pid->output_buffer_ring, PID_BUFFER_SIZE);
+  pid->pid_output = 0;
 }
 
 void pid_setConstants(pid_data_t *pid, const float proportional_gain,
