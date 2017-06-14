@@ -23,6 +23,8 @@ typedef struct pid_data_t {
   float output_buffer[PID_BUFFER_SIZE];
 } pid_data_t;
 
+typedef void (*pid_method_t)(pid_data_t *, const float, const float);
+
 void pid_setConstants(pid_data_t *pid,
     const float proportional_gain,
     const float integral_gain,

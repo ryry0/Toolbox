@@ -153,3 +153,23 @@ void pid_minUpdate(pid_data_t *pid, const float current_error,
   rb_pushFront(output_buffer, u); //update the error buffer
   pid->pid_output = u;
 }
+
+static float pid_Feedback(pid_data_t *pid, float setpoint,
+    float sensor, float dt, pid_method_t method) {
+  //get error
+  float error = setpoint - sensor;
+  //update PID
+  (*method)(current_pid, error, dt);
+
+  return pid.pid_output;
+}
+
+static float pid_feedforwardFeedback(pid_data_t *pid, float setpoint,
+    float sensor, float dt, pid_method_t method) {
+  //get error
+  float error = setpoint - sensor;
+  //update PID
+  (*method)(current_pid, error, dt);
+
+  return setpoint - pid.pid_output;
+}
