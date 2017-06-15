@@ -73,3 +73,20 @@ float nm_sgSecondDer5(ring_buffer_t r_buff, float dt) {
 
   return numerator/(42.0*dt*dt);
 }
+
+size_t nm_genRange(float start, float increment, float end, float **array) {
+  const size_t arr_size = ceil(fabs((end - start)/increment));
+  float *range = malloc(arr_size*sizeof(float));
+
+  for (size_t i = 0; i < arr_size; ++i) {
+    range[i] = start + i*increment;
+  }
+
+  *array = range;
+  return arr_size;
+}
+
+float nm_expProcess(float prev, float setpoint, float sample_time, float tau) {
+  const float A = sample_time/tau;
+  return prev + A*setpoint/(A+1);
+}
