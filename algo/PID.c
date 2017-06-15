@@ -97,7 +97,7 @@ void pid_velocUpdate(pid_data_t *pid, const float current_error,
   pid->pid_output = u;
 }
 
-void pid_minUpdate(pid_data_t *pid, const float current_error,
+void pid_minPIUpdate(pid_data_t *pid, const float current_error,
     const float dt) {
   const float Kp = pid->proportional_gain;
   const float Ki = pid->integral_gain;
