@@ -21,27 +21,46 @@ size_t genRange(float start, float increment, float end, float **array) {
   return arr_size;
 }
 
+float expProcess(float prev, float setpoint, float sample_time, float tau) {
+  const float A = sample_time/tau;
+  return prev + A*setpoint/(A+1);
+}
+
+//tau is about .25*rise time.
+
 int main(int argc, char ** argv) {
   ring_buffer_t r_buff = rb_create(PID_BUFFER_SIZE);
 
   float *time;
   const float dt = 0.001;
 
-  size_t len_time = genRange(-10.0, dt, 10.0, &time);
+  pid_data_t pid;
 
-  printf("t,y,fd,sd\n");
+  pid_init(&pid, 1, 0, 0, 5000);
+
+  size_t len_time = genRange(0, dt, 10.0, &time);
+
+  printf("t,s,p,c\n");
   for (size_t i = 0; i < len_time; ++i) {
-    //float y = sinHertz(1.0, time[i]);
-    float y = pow(time[i], 2);
-    rb_pushFront(r_buff, y);
+    const float set = 2.0;
+    float commanded_setpoint = 0;
+    static float sensor_prev = 0;
+    static float pid_output = 0;
 
-    float fd = nm_fdFirstDer(r_buff, dt);
-    //float sd = nm_sgSecondDer5(r_buff, dt);
-    float sd = nm_sgSecondDer(r_buff, dt);
-    //float sd = nm_fdSecondDer(r_buff, dt);
+    if (time[i] > 2.0)
+      commanded_setpoint = set;
 
-    printf("%f,%f,%f,%f\n", time[i], y, fd, sd);
+    float sensor = expProcess(sensor_prev, pid_output, dt, 0.00025);
+
+    pid_output = pid_FeedbackCtrl(&pid, commanded_setpoint, sensor, dt,
+      pid_minUpdate);
+
+    printf("%f,%f,%f,%f\n", time[i], commanded_setpoint, sensor, pid_output);
+
+    sensor_prev = sensor;
   }
+
+  free(time);
 
   return 0;
 }
