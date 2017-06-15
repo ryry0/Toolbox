@@ -48,6 +48,10 @@ void pid_fixedUpdate(pid_data_t *pid, const float current_error, const float dt)
 void pid_velocUpdate(pid_data_t *pid, const float current_error,
     const float dt);
 
+//minimal PID implementation
+void pid_minUpdate(pid_data_t *pid, const float current_error,
+    const float dt);
+
 float pid_FeedbackCtrl(pid_data_t *pid, const float setpoint,
     const float sensor, const float dt, const pid_method_t method);
 
