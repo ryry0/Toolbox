@@ -109,10 +109,10 @@ void pid_minUpdate(pid_data_t *pid, const float current_error,
 
   float u =
     rb_get(output_buffer, 0) + //u[n-1]
-    Kp*rb_get(error_buffer, 1) + //Kp*e[n-1]
-    (Ki*dt - Kp)*rb_get(error_buffer, 0); //(Ki*dt - Kp) * e[n]
+    -Kp*rb_get(error_buffer, 1) + //Kp*e[n-1]
+    (Ki*dt + Kp)*rb_get(error_buffer, 0); //(Ki*dt - Kp) * e[n]
 
-  rb_pushFront(output_buffer, u); //update the error buffer
+  rb_pushFront(output_buffer, u); //update the output buffer
   pid->pid_output = u;
 }
 
