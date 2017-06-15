@@ -3,8 +3,10 @@
 #include <string.h>
 #include <ring_buffer.h>
 
+#define DATATYPE float
+
 void rb_init(ring_buffer_t r_buffer, size_t size) {
-  memset(r_buffer->buffer, 0, size);
+  memset(r_buffer->buffer, 0, size*sizeof(DATATYPE));
 
   r_buffer->buffer_size = size;
   r_buffer->head = 0;
