@@ -1,6 +1,7 @@
 #include <numerical.h>
+#include <math.h>
 
-float nm_fdFirstDer(ring_buffer_t r_buff, float dt) {
+float nm_fdFirstDer(const ring_buffer_t r_buff, float dt) {
   const float A = -1.0/5.0;
   const float B = 5.0/4.0;
   const float C = -10.0/3.0;
@@ -21,7 +22,7 @@ float nm_fdFirstDer(ring_buffer_t r_buff, float dt) {
   return numerator/dt;
 }
 
-float nm_fdSecondDer(ring_buffer_t r_buff, float dt) {
+float nm_fdSecondDer(const ring_buffer_t r_buff, float dt) {
   const float A = 5.0/6.0;
   const float B = -61.0/12.0;
   const float C = 13.0;
@@ -40,7 +41,7 @@ float nm_fdSecondDer(ring_buffer_t r_buff, float dt) {
   return numerator/(dt*dt);
 }
 
-float nm_sgSecondDer(ring_buffer_t r_buff, float dt) {
+float nm_sgSecondDer(const ring_buffer_t r_buff, float dt) {
   const float B = 2;
   const float C = -1;
   const float D = -2;
@@ -57,7 +58,7 @@ float nm_sgSecondDer(ring_buffer_t r_buff, float dt) {
   return numerator/(7*dt*dt);
 }
 
-float nm_sgSecondDer5(ring_buffer_t r_buff, float dt) {
+float nm_sgSecondDer5(const ring_buffer_t r_buff, float dt) {
   const float A = 5;
   const float C = -3;
   const float D = -4;
@@ -89,4 +90,8 @@ size_t nm_genRange(float start, float increment, float end, float **array) {
 float nm_expProcess(float prev, float setpoint, float sample_time, float tau) {
   const float A = sample_time/tau;
   return prev + A*setpoint/(A+1);
+}
+
+float nm_expMovAvg(float constant, float current_average, float new_value) {
+  return (1-constant)*current_average + constant*new_value;
 }

@@ -1,9 +1,9 @@
 #include <PID.h>
 #include <numerical.h>
 
-void pid_init(pid_data_t *pid, const float proportional_gain,
-    const float integral_gain, const float derivative_gain,
-    const float integral_guard) {
+void pid_init(pid_data_t *pid, float proportional_gain,
+    float integral_gain, float derivative_gain,
+    float integral_guard) {
   pid_setConstants(
       pid,
       proportional_gain,
@@ -21,9 +21,9 @@ void pid_init(pid_data_t *pid, const float proportional_gain,
   pid->pid_output = 0;
 }
 
-void pid_setConstants(pid_data_t *pid, const float proportional_gain,
-    const float integral_gain, const float derivative_gain,
-    const float integral_guard) {
+void pid_setConstants(pid_data_t *pid, float proportional_gain,
+    float integral_gain, float derivative_gain,
+    float integral_guard) {
   pid->proportional_gain = proportional_gain;
   pid->integral_gain = integral_gain;
   pid->derivative_gain = derivative_gain;
@@ -32,7 +32,7 @@ void pid_setConstants(pid_data_t *pid, const float proportional_gain,
   pid->integral_error = 0;
 }
 
-void pid_update(pid_data_t *pid, const float current_error, const float dt) {
+void pid_update(pid_data_t *pid, float current_error, float dt) {
   float error_differential = 0;
 
   pid->integral_error += current_error * dt;
@@ -50,7 +50,7 @@ void pid_update(pid_data_t *pid, const float current_error, const float dt) {
 //fixed update PID is meant to be called at constant time intervals,
 //therefore it does not need dt
 //It only has dt to match the function signature of the others
-void pid_fixedUpdate(pid_data_t *pid, const float current_error, const float dt) {
+void pid_fixedUpdate(pid_data_t *pid, float current_error, float dt) {
   float error_differential = 0;
 
   pid->integral_error += current_error;
@@ -66,27 +66,27 @@ void pid_fixedUpdate(pid_data_t *pid, const float current_error, const float dt)
   pid->previous_error = current_error;
 } //end pidControl()
 
-void pid_velocUpdate(pid_data_t *pid, const float current_error,
-    const float dt) {
+void pid_velocUpdate(pid_data_t *pid, float current_error,
+    float dt) {
   const float A = 18.0/11.0;
   const float B = -9.0/11.0;
   const float C = 2.0/11.0;
   const float D = 6.0/11.0;
 
-  float Kp = pid->proportional_gain;
-  float Ki = pid->integral_gain;
-  float Kd = pid->derivative_gain;
-  struct ring_buffer_s *error_buffer = &pid->error_buffer_ring;
-  struct ring_buffer_s *output_buffer = &pid->output_buffer_ring;
+  const float Kp = pid->proportional_gain;
+  const float Ki = pid->integral_gain;
+  const float Kd = pid->derivative_gain;
+  struct ring_buffer_s *const error_buffer = &pid->error_buffer_ring;
+  struct ring_buffer_s *const output_buffer = &pid->output_buffer_ring;
 
   rb_pushFront(error_buffer, current_error); //update the error buffer
 
-  float du =
+  const float du =
     Kp * nm_fdFirstDer(error_buffer, dt) +
     Ki * current_error +
     Kd * nm_fdSecondDer(error_buffer, dt);
 
-  float u =
+  const float u =
     //this is the previous value since current val [n] not pushed
     A*rb_get(output_buffer, 0) + //[n-1]
     B*rb_get(output_buffer, 1) + //[n-2]
@@ -97,17 +97,16 @@ void pid_velocUpdate(pid_data_t *pid, const float current_error,
   pid->pid_output = u;
 }
 
-void pid_minPIUpdate(pid_data_t *pid, const float current_error,
-    const float dt) {
+void pid_minPIUpdate(pid_data_t *pid, float current_error,
+    float dt) {
   const float Kp = pid->proportional_gain;
   const float Ki = pid->integral_gain;
-  const float Kd = pid->derivative_gain;
-  struct ring_buffer_s *error_buffer = &pid->error_buffer_ring;
-  struct ring_buffer_s *output_buffer = &pid->output_buffer_ring;
+  struct ring_buffer_s *const error_buffer = &pid->error_buffer_ring;
+  struct ring_buffer_s *const output_buffer = &pid->output_buffer_ring;
 
   rb_pushFront(error_buffer, current_error); //update the error buffer
 
-  float u =
+  const float u =
     rb_get(output_buffer, 0) + //u[n-1]
     -Kp*rb_get(error_buffer, 1) + //Kp*e[n-1]
     (Ki*dt + Kp)*rb_get(error_buffer, 0); //(Ki*dt - Kp) * e[n]
@@ -116,8 +115,8 @@ void pid_minPIUpdate(pid_data_t *pid, const float current_error,
   pid->pid_output = u;
 }
 
-float pid_FeedbackCtrl(pid_data_t *pid, const float setpoint,
-    const float sensor, const float dt, const pid_method_t method) {
+float pid_FeedbackCtrl(pid_data_t *pid, float setpoint,
+    float sensor, float dt, pid_method_t method) {
   //get error
   const float error = setpoint - sensor;
   //update PID
@@ -126,8 +125,8 @@ float pid_FeedbackCtrl(pid_data_t *pid, const float setpoint,
   return pid->pid_output;
 }
 
-float pid_feedforwardFeedbackCtrl(pid_data_t *pid, const float setpoint,
-    const float sensor, const float dt, const pid_method_t method) {
+float pid_feedforwardFeedbackCtrl(pid_data_t *pid, float setpoint,
+    float sensor, float dt, pid_method_t method) {
 
   return setpoint - pid_FeedbackCtrl(pid, setpoint, sensor, dt, method);
 }

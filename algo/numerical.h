@@ -24,7 +24,7 @@
  * \param r_buff Ring buffer of size 6
  * \param dt Sample time between the points.
  */
-float nm_fdFirstDer(ring_buffer_t r_buff, float dt);
+float nm_fdFirstDer(const ring_buffer_t r_buff, float dt);
 
 
 /**
@@ -34,7 +34,7 @@ float nm_fdFirstDer(ring_buffer_t r_buff, float dt);
  * \param r_buff Ring buffer of size 6
  * \param dt Sample time between the points.
  */
-float nm_fdSecondDer(ring_buffer_t r_buff, float dt);
+float nm_fdSecondDer(const ring_buffer_t r_buff, float dt);
 
 /**
  * \brief This function takes a window size 5 savitsky golay approximation of
@@ -43,7 +43,7 @@ float nm_fdSecondDer(ring_buffer_t r_buff, float dt);
  * \param r_buff Ring buffer of size 6
  * \param dt Sample time between the points.
  */
-float nm_sgSecondDer(ring_buffer_t r_buff, float dt);
+float nm_sgSecondDer(const ring_buffer_t r_buff, float dt);
 
 /**
  * \brief This function takes a 6th order savitsky golay approximation of the
@@ -52,7 +52,7 @@ float nm_sgSecondDer(ring_buffer_t r_buff, float dt);
  * \param r_buff Ring buffer of size 7
  * \param dt Sample time between the points.
  */
-float nm_sgSecondDer6(ring_buffer_t r_buff, float dt);
+float nm_sgSecondDer6(const ring_buffer_t r_buff, float dt);
 
 
 /**
@@ -81,4 +81,19 @@ size_t nm_genRange(float start, float increment, float end, float **array);
  * \return Returns the current value of the process
  */
 float nm_expProcess(float prev, float setpoint, float sample_time, float tau);
+
+
+/**
+ * \brief This function can perform a computationally efficient stateless
+ * exponential moving average stored in current_average.
+ *
+ * \param constant Value for the constant used in the moving average. Must be (0,1)
+ * \param current_average The current value for the moving average
+ * \param new_value The new value to incorporate into the moving average
+ *
+ * \return Returns the updated value of the moving average
+ */
+float nm_expMovAvg(const float constant, const float current_average,
+    const float new_value);
+
 #endif

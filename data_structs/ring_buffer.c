@@ -3,10 +3,10 @@
 #include <string.h>
 #include <ring_buffer.h>
 
-#define DATATYPE float
+//void pointer to buffer? send in datatype size, cast outside? is that safe?
 
 void rb_init(ring_buffer_t r_buffer, size_t size) {
-  memset(r_buffer->buffer, 0, size*sizeof(DATATYPE));
+  memset(r_buffer->buffer, 0, size*sizeof(float));
 
   r_buffer->buffer_size = size;
   r_buffer->head = 0;
@@ -91,7 +91,7 @@ void rb_read(ring_buffer_t r_buffer, float *buffer) {
   }
 }
 
-float rb_get(ring_buffer_t r_buffer, size_t index) {
+float rb_get(const ring_buffer_t r_buffer, size_t index) {
       return r_buffer->buffer[ (r_buffer->head + index) % r_buffer->buffer_size ];
 }
 
@@ -99,6 +99,6 @@ void rb_destroy(ring_buffer_t r_buffer) {
   free(r_buffer->buffer);
 }
 
-size_t rb_getLength (ring_buffer_t r_buffer) {
+size_t rb_getLength (const ring_buffer_t r_buffer) {
   return r_buffer->length;
 }
