@@ -9,6 +9,16 @@
 #include <ring_buffer.h>
 
 /**
+ * \brief This macro forces an amount to be constrained between low and high
+ * values.
+ *
+ * \param amt The amount.
+ * \param low The lower bound.
+ * \param high The upper bound.
+ */
+#define nm_constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
+
+/**
  * \brief This function takes a 5th order approximation of the first derivative.
  *
  * \param r_buff Ring buffer of size 6

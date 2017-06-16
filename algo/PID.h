@@ -2,7 +2,6 @@
 #define PID_H_
 #include <ring_buffer.h>
 
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 #define PID_BUFFER_SIZE 6
 
 //Use this data structure to create a customized PID per motor

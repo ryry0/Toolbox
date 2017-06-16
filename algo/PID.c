@@ -36,7 +36,7 @@ void pid_update(pid_data_t *pid, const float current_error, const float dt) {
   float error_differential = 0;
 
   pid->integral_error += current_error * dt;
-  pid->integral_error = constrain(pid->integral_error, -pid->integral_guard,
+  pid->integral_error = nm_constrain(pid->integral_error, -pid->integral_guard,
       pid->integral_guard);
   error_differential = (current_error - pid->previous_error)/dt;
 
@@ -54,7 +54,7 @@ void pid_fixedUpdate(pid_data_t *pid, const float current_error, const float dt)
   float error_differential = 0;
 
   pid->integral_error += current_error;
-  pid->integral_error = constrain(pid->integral_error, -pid->integral_guard,
+  pid->integral_error = nm_constrain(pid->integral_error, -pid->integral_guard,
       pid->integral_guard);
 
   error_differential = (current_error - pid->previous_error);
