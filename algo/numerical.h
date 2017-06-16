@@ -93,7 +93,7 @@ float nm_expProcess(float prev, float setpoint, float sample_time, float tau);
  *
  * \return Returns the updated value of the moving average
  */
-float nm_expMovAvg(const float constant, const float current_average,
-    const float new_value);
+float nm_expMovAvg(float constant, float current_average,
+    float new_value);
 
 #endif
