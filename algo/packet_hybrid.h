@@ -11,6 +11,7 @@ typedef enum pkt_type_s {
   PKT_DBG_PID,
   PKT_ZERO_PID,
   PKT_DEBUG_STR,
+  PKT_SET_SIN_PID,
   PKT_DATA_START = 's',
   PKT_DATA_STOP = 'n',
   PKT_EN_MOTOR = 'e',
