@@ -3,7 +3,7 @@
 #include <packet.h>
 
 //can't use sizeof structs because of struct packing... well you could
-#define PKT_DBG_PID_LEN (1 + 9*sizeof(float) + 1*sizeof(uint16_t) + 1*sizeof(uint8_t))
+#define PKT_DBG_PID_LEN (1 + 9*sizeof(float) + 2*sizeof(uint16_t))
 #define PKT_SET_PID_LEN (1 + 4*sizeof(float))
 
 typedef enum pkt_type_s {
@@ -32,7 +32,7 @@ typedef struct {
   float current_command;
   float speed_command;
   uint16_t pwm_command;
-  uint8_t direction;
+  uint16_t direction;
 } pkt_dbg_pid_t;
 
 typedef struct {
