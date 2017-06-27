@@ -3,13 +3,15 @@
 
 void pid_init(pid_data_t *pid, float proportional_gain,
     float integral_gain, float derivative_gain,
-    float integral_guard) {
+    float max_integral_guard,
+    float min_integral_guard) {
   pid_setConstants(
       pid,
       proportional_gain,
       integral_gain,
       derivative_gain,
-      integral_guard);
+      max_integral_guard,
+      min_integral_guard);
 
   //set up the ring buffers
   rb_setBuffer(&pid->error_buffer_ring, pid->error_buffer);
@@ -23,11 +25,12 @@ void pid_init(pid_data_t *pid, float proportional_gain,
 
 void pid_setConstants(pid_data_t *pid, float proportional_gain,
     float integral_gain, float derivative_gain,
-    float integral_guard) {
+    float max_integral_guard, float min_integral_guard) {
   pid->proportional_gain = proportional_gain;
   pid->integral_gain = integral_gain;
   pid->derivative_gain = derivative_gain;
-  pid->integral_guard = integral_guard;
+  pid->max_integral_guard = max_integral_guard;
+  pid->min_integral_guard = min_integral_guard;
   pid->previous_error = 0;
   pid->integral_error = 0;
 }
@@ -36,8 +39,9 @@ void pid_update(pid_data_t *pid, float current_error, float dt) {
   float error_differential = 0;
 
   pid->integral_error += current_error * dt;
-  pid->integral_error = nm_constrain(pid->integral_error, -pid->integral_guard,
-      pid->integral_guard);
+  pid->integral_error = nm_constrain(pid->integral_error,
+      pid->min_integral_guard,
+      pid->max_integral_guard);
   error_differential = (current_error - pid->previous_error)/dt;
 
   pid->pid_output = (pid->proportional_gain * current_error) +
@@ -54,8 +58,8 @@ void pid_fixedUpdate(pid_data_t *pid, float current_error, float dt) {
   float error_differential = 0;
 
   pid->integral_error += current_error;
-  pid->integral_error = nm_constrain(pid->integral_error, -pid->integral_guard,
-      pid->integral_guard);
+  pid->integral_error = nm_constrain(pid->integral_error, pid->min_integral_guard,
+      pid->max_integral_guard);
 
   error_differential = (current_error - pid->previous_error);
 
@@ -86,12 +90,15 @@ void pid_velocUpdate(pid_data_t *pid, float current_error,
     Ki * current_error +
     Kd * nm_fdSecondDer(error_buffer, dt);
 
-  const float u =
+  float u =
     //this is the previous value since current val [n] not pushed
     A*rb_get(output_buffer, 0) + //[n-1]
     B*rb_get(output_buffer, 1) + //[n-2]
     C*rb_get(output_buffer, 2) + //[n-3]
     D*du*dt; //D*du*dt
+
+  // antiwindup
+  //u = nm_constrain(u, pid->min_integral_guard, pid->max_integral_guard);
 
   rb_pushFront(output_buffer, u); //update the error buffer
   pid->pid_output = u;
@@ -106,10 +113,13 @@ void pid_minPIUpdate(pid_data_t *pid, float current_error,
 
   rb_pushFront(error_buffer, current_error); //update the error buffer
 
-  const float u =
+  float u =
     rb_get(output_buffer, 0) + //u[n-1]
     -Kp*rb_get(error_buffer, 1) + //Kp*e[n-1]
     (Ki*dt + Kp)*rb_get(error_buffer, 0); //(Ki*dt - Kp) * e[n]
+
+  // antiwindup
+  //u = nm_constrain(u, pid->min_integral_guard, pid->max_integral_guard);
 
   rb_pushFront(output_buffer, u); //update the output buffer
   pid->pid_output = u;

@@ -21,7 +21,8 @@ typedef struct pid_data_t {
   float derivative_gain;
   float previous_error;
   float integral_error;
-  float integral_guard;
+  float max_integral_guard;
+  float min_integral_guard;
   float pid_output;
 
   struct ring_buffer_s error_buffer_ring;
@@ -43,13 +44,15 @@ typedef void (*pid_method_t)(pid_data_t *, float, float);
  * \param proportional_gain The proportional gain of the PID.
  * \param integral_gain The integral gain of the PID.
  * \param derivative_gain The derivative gain of the PID.
- * \param integral_guard Maximum that the running integral can sum to.
+ * \param max_integral_guard Maximum that the running integral can sum to.
+ * \param min_integral_guard Minimum that the running integral can sum to.
  */
 void pid_init(pid_data_t *pid,
     float proportional_gain,
     float integral_gain,
     float derivative_gain,
-    float integral_guard);
+    float max_integral_guard,
+    float min_integral_guard);
 
 /**
  * \brief Set the constants of the PID.
@@ -58,13 +61,15 @@ void pid_init(pid_data_t *pid,
  * \param proportional_gain The proportional gain of the PID.
  * \param integral_gain The integral gain of the PID.
  * \param derivative_gain The derivative gain of the PID.
- * \param integral_guard Maximum that the running integral can sum to.
+ * \param max_integral_guard Maximum that the running integral can sum to.
+ * \param min_integral_guard Minimum that the running integral can sum to.
  */
 void pid_setConstants(pid_data_t *pid,
     float proportional_gain,
     float integral_gain,
     float derivative_gain,
-    float integral_guard);
+    float max_integral_guard,
+    float min_integral_guard);
 
 /**
  * \brief Performs a traditional PID calculation
