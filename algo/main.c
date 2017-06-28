@@ -19,7 +19,7 @@ int main(int argc, char ** argv) {
 
   pid_data_t pid;
 
-  pid_init(&pid, 1.0, 0.1, 0.1, 5000);
+  pid_init(&pid, 1.0, 0.1, 0.0, -0.1, 0.1);
 
   size_t len_time = nm_genRange(0, dt, 100.0, &time);
 
@@ -37,7 +37,7 @@ int main(int argc, char ** argv) {
     float sensor = nm_expProcess(sensor_prev, pid_output, dt, tau);
 
     pid_output = pid_FeedbackCtrl(&pid, commanded_setpoint, sensor, dt,
-        pid_velocUpdate);
+        pid_minPIUpdate);
 
     printf("%f,%f,%f,%f\n", time[i], commanded_setpoint, sensor, pid_output);
 
