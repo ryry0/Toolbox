@@ -19,22 +19,40 @@
 #define nm_constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
 /**
- * \brief This function takes a 5th order approximation of the first derivative.
+ * \brief This function takes a 2 point or 1st order approximation of the first
+ * derivative.
  *
- * \param r_buff Ring buffer of size 6
+ * \param r_buff Ring buffer of size 2
  * \param dt Sample time between the points.
  */
-float nm_fdFirstDer(const ring_buffer_t r_buff, float dt);
-
+float nm_fdFirstDer2(const ring_buffer_t r_buff, float dt);
 
 /**
- * \brief This function takes a 4th order finite difference approximation of the
- * second derivative.
+ * \brief This function takes a 5 point or 5th order approximation of the first
+ * derivative.
  *
  * \param r_buff Ring buffer of size 6
  * \param dt Sample time between the points.
  */
-float nm_fdSecondDer(const ring_buffer_t r_buff, float dt);
+float nm_fdFirstDer5(const ring_buffer_t r_buff, float dt);
+
+/**
+ * \brief This function takes a 3 point or 1st order finite difference
+ * approximation of the second derivative.
+ *
+ * \param r_buff Ring buffer of size 3
+ * \param dt Sample time between the points.
+ */
+float nm_fdSecondDer3(const ring_buffer_t r_buff, float dt);
+
+/**
+ * \brief This function takes a 5 point or 4th order finite difference
+ * approximation of the second derivative.
+ *
+ * \param r_buff Ring buffer of size 6
+ * \param dt Sample time between the points.
+ */
+float nm_fdSecondDer5(const ring_buffer_t r_buff, float dt);
 
 /**
  * \brief This function takes a window size 5 savitsky golay approximation of
@@ -54,6 +72,23 @@ float nm_sgSecondDer(const ring_buffer_t r_buff, float dt);
  */
 float nm_sgSecondDer6(const ring_buffer_t r_buff, float dt);
 
+
+/**
+ * \brief This function performs one iteration of a 2 point discrete integration.
+ *
+ * \param r_buff Ring buffer of size 4
+ * \param dt Sample time between the points.
+ */
+float nm_dIntegrate2(const ring_buffer_t prev_vals, float du, float dt);
+
+
+/**
+ * \brief This function performs one iteration of a 4 point discrete integration.
+ *
+ * \param r_buff Ring buffer of size 4
+ * \param dt Sample time between the points.
+ */
+float nm_dIntegrate4(const ring_buffer_t prev_vals, float du, float dt);
 
 /**
  * \brief This function mallocs an array of floats between start and end, in

@@ -1,7 +1,18 @@
 #include <numerical.h>
 #include <math.h>
 
-float nm_fdFirstDer(const ring_buffer_t r_buff, float dt) {
+float nm_fdFirstDer2(const ring_buffer_t r_buff, float dt) {
+  const float A = -1.0;
+  const float B = 1.0;
+
+  float numerator =
+    A*rb_get(r_buff, 1) + //u[n-1]
+    B*rb_get(r_buff, 0); //u[n]
+
+  return numerator/dt;
+}
+
+float nm_fdFirstDer5(const ring_buffer_t r_buff, float dt) {
   const float A = -1.0/5.0;
   const float B = 5.0/4.0;
   const float C = -10.0/3.0;
@@ -22,7 +33,20 @@ float nm_fdFirstDer(const ring_buffer_t r_buff, float dt) {
   return numerator/dt;
 }
 
-float nm_fdSecondDer(const ring_buffer_t r_buff, float dt) {
+float nm_fdSecondDer3(const ring_buffer_t r_buff, float dt) {
+  const float A = 1;
+  const float B = -2;
+  const float C = 1;
+
+  float numerator =
+    A*rb_get(r_buff, 2) +
+    B*rb_get(r_buff, 1) +
+    C*rb_get(r_buff, 0);
+
+  return numerator/(dt*dt);
+}
+
+float nm_fdSecondDer5(const ring_buffer_t r_buff, float dt) {
   const float A = 5.0/6.0;
   const float B = -61.0/12.0;
   const float C = 13.0;
@@ -40,6 +64,7 @@ float nm_fdSecondDer(const ring_buffer_t r_buff, float dt) {
 
   return numerator/(dt*dt);
 }
+
 
 float nm_sgSecondDer(const ring_buffer_t r_buff, float dt) {
   const float B = 2;
@@ -73,6 +98,26 @@ float nm_sgSecondDer5(const ring_buffer_t r_buff, float dt) {
     G*rb_get(r_buff, 0);
 
   return numerator/(42.0*dt*dt);
+}
+
+float nm_dIntegrate2(const ring_buffer_t prev_vals, float du, float dt) {
+  return rb_get(prev_vals, 0) + du*dt;
+}
+
+float nm_dIntegrate4(const ring_buffer_t prev_vals, float du, float dt) {
+  const float A = 18.0/11.0;
+  const float B = -9.0/11.0;
+  const float C = 2.0/11.0;
+  const float D = 6.0/11.0;
+
+  const float u =
+    //this is the previous value since current val [n] not pushed
+    A*rb_get(prev_vals, 0) + //[n-1]
+    B*rb_get(prev_vals, 1) + //[n-2]
+    C*rb_get(prev_vals, 2) + //[n-3]
+    D*du*dt; //D*du*dt
+
+  return u;
 }
 
 size_t nm_genRange(float start, float increment, float end, float **array) {
