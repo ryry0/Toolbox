@@ -44,9 +44,17 @@ typedef struct {
   float r_knee_velocity;
   float r_knee_angle;
 
+  float r_knee_current_commanded;
+  float r_knee_velocity_commanded;
+  float r_knee_angle_commanded;
+
   float l_knee_current;
   float l_knee_velocity;
   float l_knee_angle;
+
+  float l_knee_current_commanded;
+  float l_knee_velocity_commanded;
+  float l_knee_angle_commanded;
 
   uint32_t timestamp;
 
