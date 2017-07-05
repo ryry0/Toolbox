@@ -129,12 +129,12 @@ inline void pkt_setTotalLength(pkt_generic_t *packet, size_t total_length)
  * \param type The type of message
  * \param length The length of the payload and the type byte.
  */
-inline void pkt_setHeader(pkt_generic_t *packet, uint8_t type, size_t length) {
+inline void pkt_setHeader(pkt_generic_t *packet, uint8_t type, size_t payload_length) {
   packet->header = 0x00;
   packet->cobs_byte = 0x00;
   packet->type = type;
-  packet->type_payload_length = length;
-  packet->total_length = PKT_HEADER_LENGTH + length;
+  packet->type_payload_length = PKT_TYPE_LENGTH + payload_length;
+  packet->total_length = PKT_HEADER_LENGTH + packet->type_payload_length;
 }
 
 /**
@@ -144,7 +144,7 @@ inline void pkt_setHeader(pkt_generic_t *packet, uint8_t type, size_t length) {
  * \param type The type of message
  */
 inline void pkt_setHeaderTypeOnly(pkt_generic_t *packet, uint8_t type) {
-  pkt_setHeader(packet, type, PKT_TYPE_LENGTH);
+  pkt_setHeader(packet, type, 0);
 }
 
 #endif
