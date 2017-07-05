@@ -2,9 +2,6 @@
 #define PACKET_HYBRID_H_
 #include <packet.h>
 
-//can't use sizeof structs because of struct packing... well you could
-//TODO: update all lengths
-
 typedef enum pkt_type_e {
   PKT_ACK         = 0x0A,
   PKT_SET_PID,
@@ -24,8 +21,6 @@ typedef enum pkt_type_e {
 } pkt_type_t;
 
 /*----------------------------------------------------------------------------*/
-//TODO: add pid_id
-#define PKT_DBG_PID_LEN (11*sizeof(float) + 1*sizeof(uint8_t))
 typedef struct {
   float setpoint;
   float Kp;
@@ -38,27 +33,31 @@ typedef struct {
   float speed_command;
   float pwm_command;
   float direction;
+  uint8_t pid_id
 } pkt_dbg_pid_t;
 
 /*----------------------------------------------------------------------------*/
-//TODO: add white button press
-//TODO: add timestamp
-#define PKT_LOG_DATA_LEN ()
 typedef struct {
+  float r_hip_angle;
+
+  float r_knee_current;
+  float r_knee_velocity;
+  float r_knee_angle;
+
+  float l_knee_current;
+  float l_knee_velocity;
+  float l_knee_angle;
+
+  uint32_t timestamp;
+
   uint16_t an_0_l_fsr_heel;
   uint16_t an_2_r_fsr_heel;
-  uint16_t an_4_l_hip_enc;
-  uint16_t an_6_l_knee_enc;
-  uint16_t an_12_mot1_anout1;
-  uint16_t an_14_mot2_anout1;
   uint16_t an_1_l_fsr_ff;
   uint16_t an_3_r_fsr_ff;
-  uint16_t an_5_r_hip_enc;
-  uint16_t an_7_r_knee_enc;
   uint16_t an_11_bat_volt;
-  uint16_t an_13_mot1_anout2;
-  uint16_t an_15_mot2_anout2;
+
   uint8_t state;
+  uint8_t time_marker;
 } pkt_log_data_t;
 
 /*----------------------------------------------------------------------------*/
@@ -78,9 +77,6 @@ typedef struct {
 } pkt_set_state_t;
 
 /*----------------------------------------------------------------------------*/
-//TODO: add pid_id
-#define PKT_SET_PID_LEN (6*sizeof(float))
-#define PKT_GET_PID_LEN PKT_SET_PID_LEN
 typedef struct {
   float setpoint;
   float Kp;
@@ -88,6 +84,7 @@ typedef struct {
   float Kd;
   float guard_max;
   float guard_min;
+  uint8_t pid_id;
 } pkt_set_pid_t;
 
 typedef pkt_set_pid_t pkt_get_pid_t;
