@@ -33,7 +33,7 @@ typedef struct {
   float speed_command;
   float pwm_command;
   float direction;
-  uint8_t pid_id
+  uint8_t pid_id;
 } pkt_dbg_pid_t;
 
 /*----------------------------------------------------------------------------*/
