@@ -12,7 +12,9 @@ typedef enum pkt_type_e {
   PKT_LOG_DATA,
   PKT_LOG_PARAMS,
   PKT_SET_PARAMS,
+  PKT_GET_PARAMS,
   PKT_SET_STATE,
+  PKT_CALIBRATE_KNEE,
   PKT_DATA_START  = 's',
   PKT_DATA_STOP   = 'n',
   PKT_EN_MOTOR    = 'e',
@@ -20,6 +22,13 @@ typedef enum pkt_type_e {
   PKT_SYN         = 0xFF
 } pkt_type_t;
 
+typedef enum pkt_pid_id_e {
+  PKT_PID_L_KNEE_POSITION,
+  PKT_PID_L_KNEE_SPEED,
+
+  PKT_PID_R_KNEE_POSITION,
+  PKT_PID_R_KNEE_SPEED,
+} pkt_pid_id_t;
 /*----------------------------------------------------------------------------*/
 typedef struct {
   float setpoint;
@@ -70,14 +79,43 @@ typedef struct {
 
 /*----------------------------------------------------------------------------*/
 typedef struct {
+  float max_hip_angle;
+  float max_knee_angle;
+
+  float l_knee_position_pid_kp;
+  float l_knee_position_pid_ki;
+  float l_knee_position_pid_kd;
+  float l_knee_position_pid_aw_ub; //antiwindup upperbound
+  float l_knee_position_pid_aw_lb;
+
+  float l_knee_speed_pid_kp;
+  float l_knee_speed_pid_ki;
+  float l_knee_speed_pid_kd;
+  float l_knee_speed_pid_aw_ub; //antiwindup upperbound
+  float l_knee_speed_pid_aw_lb;
+
+
+  float r_knee_position_pid_kp;
+  float r_knee_position_pid_ki;
+  float r_knee_position_pid_kd;
+  float r_knee_position_pid_aw_ub; //antiwindup upperbound
+  float r_knee_position_pid_aw_lb;
+
+  float r_knee_speed_pid_kp;
+  float r_knee_speed_pid_ki;
+  float r_knee_speed_pid_kd;
+  float r_knee_speed_pid_aw_ub; //antiwindup upperbound
+  float r_knee_speed_pid_aw_lb;
+
   uint16_t l_fsr_thresh;
   uint16_t r_fsr_thresh;
-  uint16_t max_hip_angle;
-  uint16_t max_knee_angle;
+
+  uint8_t position_control;
   uint8_t auto_walk;
 } pkt_log_params_t;
 
 typedef pkt_log_params_t pkt_set_params_t;
+typedef pkt_log_params_t pkt_get_params_t;
 
 /*----------------------------------------------------------------------------*/
 typedef struct {
