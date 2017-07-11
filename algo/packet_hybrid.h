@@ -80,6 +80,7 @@ typedef struct {
 /*----------------------------------------------------------------------------*/
 typedef struct {
   float max_hip_angle;
+  float min_hip_angle;
   float max_knee_angle;
 
   float l_knee_position_pid_kp;
