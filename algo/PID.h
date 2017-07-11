@@ -68,8 +68,8 @@ void pid_setConstants(pid_data_t *pid,
     float proportional_gain,
     float integral_gain,
     float derivative_gain,
-    float max_integral_guard,
-    float min_integral_guard);
+    float min_integral_guard,
+    float max_integral_guard);
 
 /**
  * \brief Performs a traditional PID calculation
