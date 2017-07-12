@@ -94,6 +94,7 @@ typedef struct {
   float l_knee_speed_pid_kd;
   float l_knee_speed_pid_aw_ub; //antiwindup upperbound
   float l_knee_speed_pid_aw_lb;
+  float l_knee_fc_alpha;
 
 
   float r_knee_position_pid_kp;
@@ -107,6 +108,7 @@ typedef struct {
   float r_knee_speed_pid_kd;
   float r_knee_speed_pid_aw_ub; //antiwindup upperbound
   float r_knee_speed_pid_aw_lb;
+  float r_knee_fc_alpha;
 
   uint16_t l_fsr_thresh;
   uint16_t r_fsr_thresh;
