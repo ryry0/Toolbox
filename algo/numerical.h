@@ -123,6 +123,7 @@ float nm_expProcess(float prev, float setpoint, float sample_time, float tau);
  * exponential moving average stored in current_average.
  *
  * \param constant Value for the constant used in the moving average. Must be (0,1)
+ * The closer to zero, the lower the cutoff frequency.
  * \param current_average The current value for the moving average
  * \param new_value The new value to incorporate into the moving average
  *
@@ -131,4 +132,20 @@ float nm_expProcess(float prev, float setpoint, float sample_time, float tau);
 float nm_expMovAvg(float constant, float current_average,
     float new_value);
 
+
+/**
+ * \brief This function can remove the dc offset in a running signal.
+ *
+ * Constant of 0.95 is typical.
+ *
+ * \param constant Value for the constant used in the filter. Must be (0,1)
+ * \param y_prev The previous output value.
+ * \param x The new value from the process.
+ * \param x_prev The previous value from the process.
+ *
+ * \return Returns the updated value of the filter
+ */
+inline float nm_removeDC(float constant, float y_prev, float x, float x_prev) {
+  return x - x_prev + constant*y_prev;
+}
 #endif
