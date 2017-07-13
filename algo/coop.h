@@ -9,9 +9,13 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+/** TODO: what I should have is the arguments be void pointers, and the task
+ * structure should have a void pointer so that it can have a specific argument.
+ */
+
 /** \brief Struct that represents the arguments to the threads */
 typedef struct coop_args_s {
-    volatile exo_t *exo;
+    volatile struct exo_s *exo;
 } coop_args_t;
 
 /** \brief function signature of a cooperative thread */
