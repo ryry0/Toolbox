@@ -55,6 +55,8 @@ typedef enum pkt_type_e {
   PARAM(R_FSR_THRESH)               \
   PARAM(POSITION_CONTROL)           \
   PARAM(AUTO_WALK)                  \
+  PARAM(TF)                         \
+  PARAM(TPS_PERC)                   \
   PARAM(PKT_PARAM_MAX)                  \
 
 #define GENERATE_ENUM(ENUM) ENUM,
