@@ -51,13 +51,14 @@ typedef enum pkt_type_e {
   PARAM(R_KNEE_SPEED_PID_AW_UB)     \
   PARAM(R_KNEE_SPEED_PID_AW_LB)     \
   PARAM(R_KNEE_FC_ALPHA)            \
-  PARAM(L_FSR_THRESH)               \
-  PARAM(R_FSR_THRESH)               \
+  PARAM(WEIGHT_ACC_FSR_THRESH)      \
+  PARAM(LOW_FSR_THRESH)             \
+  PARAM(HIGH_FSR_THRESH)            \
   PARAM(POSITION_CONTROL)           \
   PARAM(AUTO_WALK)                  \
   PARAM(TF)                         \
   PARAM(TPS_PERC)                   \
-  PARAM(PKT_PARAM_MAX)                  \
+  PARAM(PKT_PARAM_MAX)              \
 
 #define GENERATE_ENUM(ENUM) ENUM,
 #define GENERATE_STRING(STRING) #STRING,
