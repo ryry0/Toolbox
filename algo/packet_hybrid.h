@@ -58,6 +58,10 @@ typedef enum pkt_type_e {
   PARAM(AUTO_WALK)                  \
   PARAM(TF)                         \
   PARAM(TPS_PERC)                   \
+  PARAM(L_KNEE_BC_THRESH)           \
+  PARAM(L_KNEE_BC_CURRENT)          \
+  PARAM(R_KNEE_BC_THRESH)           \
+  PARAM(R_KNEE_BC_CURRENT)          \
   PARAM(PKT_PARAM_MAX)              \
 
 #define GENERATE_ENUM(ENUM) ENUM,
