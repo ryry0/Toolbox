@@ -97,6 +97,7 @@ typedef struct {
 /*----------------------------------------------------------------------------*/
 typedef struct {
   float r_hip_angle;
+  float l_hip_angle;
 
   float r_knee_current;
   float r_knee_velocity;
