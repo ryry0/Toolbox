@@ -62,6 +62,7 @@ typedef enum pkt_type_e {
   PARAM(L_KNEE_BC_CURRENT)          \
   PARAM(R_KNEE_BC_THRESH)           \
   PARAM(R_KNEE_BC_CURRENT)          \
+  PARAM(MOTOR_FORCE_OFF)          \
   PARAM(PKT_PARAM_MAX)              \
 
 #define GENERATE_ENUM(ENUM) ENUM,
