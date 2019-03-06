@@ -1,5 +1,5 @@
-#include <PID.h>
-#include <numerical.h>
+#include "PID.h"
+#include "numerical.h"
 
 void pid_init(pid_data_t *pid, float proportional_gain,
     float integral_gain, float derivative_gain,
@@ -56,6 +56,7 @@ void pid_update(pid_data_t *pid, float current_error, float dt) {
 //It only has dt to match the function signature of the others
 void pid_fixedUpdate(pid_data_t *pid, float current_error, float dt) {
   float error_differential = 0;
+  (void) dt;
 
   pid->integral_error += current_error;
   pid->integral_error = nm_constrain(pid->integral_error, pid->min_integral_guard,

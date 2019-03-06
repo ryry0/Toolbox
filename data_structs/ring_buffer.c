@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <ring_buffer.h>
+#include "ring_buffer.h"
 
 //void pointer to buffer? send in datatype size, cast outside? is that safe?
 
@@ -76,7 +76,7 @@ void rb_pushFront(ring_buffer_t r_buffer, float data) {
 
 void rb_print(ring_buffer_t r_buffer) {
   for (size_t i = 0; i < r_buffer->length; i++) {
-    printf("%c", r_buffer->buffer[(r_buffer->head + i) % r_buffer->buffer_size]);
+    printf("%f", r_buffer->buffer[(r_buffer->head + i) % r_buffer->buffer_size]);
   }
   printf("\t length: %ld\n", r_buffer->length);
   printf("\n");
