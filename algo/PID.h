@@ -6,11 +6,15 @@
  */
 #ifndef PID_H_
 #define PID_H_
-#include <ring_buffer.h>
+#include "ring_buffer.h"
 
 /** \brief This macro sets the internal pid buffer size, for previous values.
  * */
 #define PID_BUFFER_SIZE 6
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 
 /** \brief This data structure represents the PID, can create multiple PIDs per
@@ -44,15 +48,15 @@ typedef void (*pid_method_t)(pid_data_t *, float, float);
  * \param proportional_gain The proportional gain of the PID.
  * \param integral_gain The integral gain of the PID.
  * \param derivative_gain The derivative gain of the PID.
- * \param max_integral_guard Maximum that the running integral can sum to.
  * \param min_integral_guard Minimum that the running integral can sum to.
+ * \param max_integral_guard Maximum that the running integral can sum to.
  */
 void pid_init(pid_data_t *pid,
     float proportional_gain,
     float integral_gain,
     float derivative_gain,
-    float max_integral_guard,
-    float min_integral_guard);
+    float min_integral_guard,
+    float max_integral_guard);
 
 /**
  * \brief Set the constants of the PID.
@@ -61,8 +65,8 @@ void pid_init(pid_data_t *pid,
  * \param proportional_gain The proportional gain of the PID.
  * \param integral_gain The integral gain of the PID.
  * \param derivative_gain The derivative gain of the PID.
- * \param max_integral_guard Maximum that the running integral can sum to.
  * \param min_integral_guard Minimum that the running integral can sum to.
+ * \param max_integral_guard Maximum that the running integral can sum to.
  */
 void pid_setConstants(pid_data_t *pid,
     float proportional_gain,
@@ -157,4 +161,8 @@ float pid_FeedbackCtrl(pid_data_t *pid, float setpoint,
 float pid_feedforwardFeedbackCtrl(pid_data_t *pid, float setpoint,
     float sensor, float dt, pid_method_t method);
 
+
+#ifdef __cplusplus
+}
+#endif
 #endif

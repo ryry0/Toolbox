@@ -29,8 +29,8 @@ void pid_setConstants(pid_data_t *pid, float proportional_gain,
   pid->proportional_gain = proportional_gain;
   pid->integral_gain = integral_gain;
   pid->derivative_gain = derivative_gain;
-  pid->max_integral_guard = max_integral_guard;
   pid->min_integral_guard = min_integral_guard;
+  pid->max_integral_guard = max_integral_guard;
   pid->previous_error = 0;
   pid->integral_error = 0;
 }
